@@ -160,34 +160,50 @@ function ready(error, world, countryData) {
     var arcData = [.33,.6,.9,1],
     arcColors = ['#f2b31c', '#db4436','#4284f3','#109d5a'];
 
-    for (var i=0;i<arcData.length;i++){
-
-    }
-
-    var arc = d3.svg.arc()
-    .innerRadius(globeRadius+20)
-    .outerRadius(globeRadius+40)
-    .startAngle(0);
-
     var arcGroup = svg.append("g")
     .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
     .attr("class","arcGroup");
 
-    var arc0 = arcGroup.append("path")
-    .datum({endAngle: 0 * tau})
-    .style("fill", arcColors[0])
-    .attr('class','arc')
-    .attr("d", arc);
+    var curArc = 0;
 
+    function buildArc(){
 
+      var i = curArc;
+      if (i==0){
+        var startAngle = 0;
+      } else {
+        startAngle = tau * arcData[i-1];
+      }
 
+      var arc = d3.svg.arc()
+      .innerRadius(globeRadius+20)
+      .outerRadius(globeRadius+40)
+      .startAngle(startAngle);
 
-    arc0.transition()
-    .duration(750)
-    .call(arcTween, arcData[0] * tau);
+      var arcPath = arcGroup.append("path")
+      .datum({endAngle: startAngle})
+      .style("fill", arcColors[i])
+      .attr('class','arc'+i)
+      .attr("d", arc);
 
-    function arcTween(transition, newAngle) {
+      arcPath.transition()
+      .delay(i*500)
+      .duration(750)
+      .call(arcTween, arcData[i] * tau, arc)
+      .each('end',function(){
+        curArc++;
+        if (curArc<arcData.length){
+          buildArc();
+        }
+
+      });
+    }
+
+    buildArc();
+
+    function arcTween(transition, newAngle, arc) {
       transition.attrTween("d", function(d) {
+        console.log(d.endAngle,newAngle);
         var interpolate = d3.interpolate(d.endAngle, newAngle);
         return function(t) {
           d.endAngle = interpolate(t);
