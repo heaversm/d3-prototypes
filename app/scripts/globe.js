@@ -62,7 +62,7 @@ svg.append("path")
   .attr("d", path);
 
 var countryTooltip = d3.select("body").append("div").attr("class", "countryTooltip"),
-  countryList = d3.select("body").append("select").attr("name", "countries");
+  countryList = d3.select("body").append("select").attr("name", "countries").attr('id','country-select');
 
 queue()
   .defer(d3.json, "json/world-110m.json")
@@ -152,20 +152,16 @@ function ready(error, world, countryData) {
 
   function changeCountry(countryVal){
 
-    var dot = d3.select(".dot");
-
-    dot.classed('active', false).transition().duration(100).attr('r', 1).attr('fill', '#000').each('end', function() {
-      dot.attr('class', 'dot hidden');
-      marker.classed('hidden',false).transition().delay(750).duration(500).style('opacity', 1).each('end',function(){
-        if (curArc < 3){
-          marker.transition().delay(2000).duration(500).style('opacity', 0).each('end',function(){
-              marker.classed('hidden',true).attr('class','marker-group hidden ' + markerColors[curArc]);
-          });
-        }
-      });
+    var translateOutX = centerpoint[0] -8;
+    var translateOutY = centerpoint[1] -300;
+    marker.transition().duration(500).style('opacity', 0).attr('transform','translate(' + translateOutX + ', ' + translateOutY + ')').each('end',function(){
+        marker.classed('hidden',true).attr('class','marker-group hidden ' + markerColors[curArc]);
     });
 
-
+    var dot = d3.select(".dot");
+    dot.classed('active', false).transition().duration(100).attr('r', 1).attr('fill', '#4b4949').each('end', function() {
+      dot.attr('class', 'dot hidden');
+    });
 
     var rotate = projection.rotate(),
       focusedCountry = country(countries, countryVal),
@@ -191,9 +187,11 @@ function ready(error, world, countryData) {
         }).each("end", function() {
           //show circle
           dot.classed("hidden", false).attr('class', 'dot active');
-          dot = dot.transition().duration(100).attr('r', 20).attr('fill-opacity', .5).attr('fill', '#f4de63').ease('sine').transition().duration(20).attr('r', 5).attr('fill-opacity', 1).each('end', function() {
-            //globe finished rotating, dot finished pulsing
-
+          //globe finished rotating, dot finished pulsing
+          var translateInX = centerpoint[0] -8;
+          var translateInY = centerpoint[1]-22;
+          marker.classed('hidden',false).transition().ease('bounce-ease-out').duration(500).style('opacity', 1).attr('transform','translate(' + translateInX + ', ' + translateInY + ')');
+          dot = dot.transition().duration(100).attr('r', 20).attr('fill', '#4b4949').ease('sine').transition().duration(20).attr('r', 5).attr('fill-opacity', 1).each('end', function() {
           })
         })
     })();
@@ -255,6 +253,8 @@ function ready(error, world, countryData) {
             $infoText.removeClass('inactive');
             buildArc();
           },500)
+        } else {
+          $('#country-select').addClass('active').fadeTo(500,1);
         }
       },2000)
     }

@@ -28,13 +28,10 @@
 
         .land {
           fill: #5bb880;
-          stroke: #5bb880;
-          stroke-width: 0.7px;
         }
 
         .land:hover {
           fill:#81edac;
-          stroke-width: 1px;
         }
 
         .focused {
@@ -63,6 +60,21 @@
 
         .dot.hidden {
             display: none;
+        }
+
+        #country-select {
+          position: absolute;
+          top: 87%;
+          width: 270px;
+          left: 50%;
+          -webkit-transform: translate(-50%, 0%);
+          transform: translate(-50%,0%);
+          display: none;
+          opacity: 0;
+        }
+
+        #country-select.active {
+          display: block;
         }
 
         #infoText {
