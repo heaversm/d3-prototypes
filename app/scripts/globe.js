@@ -23,6 +23,8 @@ infoTextArray = [
 "Select an office to see what happened there."
 ];
 
+countryIDs = [840, 392, 724, 76];
+
 //Setting projection
 var projection = d3.geo.orthographic()
   .scale(globeRadius)
@@ -33,15 +35,22 @@ var projection = d3.geo.orthographic()
 var path = d3.geo.path()
   .projection(projection);
 
+var $markerEl = null,marker = null,markerColors=['yellow','red','blue','green'];
+
 //the points for the crescent shadow over the globe
 var earthShadow=[[543.658,224.391],[539.646,199.062],[533.009,174.291],[523.819,150.349],[512.176,127.5],[498.209,105.993],[482.07,86.063],[463.937,67.93],[444.007,51.791],[422.5,37.824],[399.651,26.181],[375.709,16.991],[350.938,10.354],[325.609,6.342],[300,5],[280,6.048],[285.609,6.342],[310.938,10.354],[335.709,16.991],[359.651,26.181],[382.5,37.824],[404.007,51.791],[423.937,67.93],[442.07,86.063],[458.209,105.993],[472.176,127.5],[483.819,150.349],[493.009,174.291],[499.646,199.062],[503.658,224.391],[505,250],[503.658,275.609],[499.646,300.938],[493.009,325.709],[483.819,349.65],[472.176,372.5],[458.209,394.007],[442.07,413.937],[423.937,432.07],[404.007,448.209],[382.5,462.176],[359.651,473.819],[335.709,483.009],[310.938,489.646],[285.609,493.658],[280,493.952],[300,495],[325.609,493.658],[350.938,489.646],[375.709,483.009],[399.651,473.819],[422.5,462.176],[444.007,448.209],[463.937,432.07],[482.07,413.937],[498.209,394.007],[512.176,372.5],[523.819,349.65],[533.009,325.709],[539.646,300.938],[543.658,275.609],[545,250]];
 
+d3.xml("img/marker-red.svg", "image/svg+xml", function(xml) {
+  // document.body.appendChild(xml.documentElement);
+   $markerEl = $(xml.documentElement).find('.marker-group')[0];
+});
 
 //SVG container
 
 var svg = d3.select("body").append("svg")
   .attr("width", width)
-  .attr("height", height);
+  .attr("height", height)
+  .attr('id','globe-svg');
 
 //Adding water
 
@@ -52,11 +61,8 @@ svg.append("path")
   .attr("class", "water globe")
   .attr("d", path);
 
-
-
 var countryTooltip = d3.select("body").append("div").attr("class", "countryTooltip"),
   countryList = d3.select("body").append("select").attr("name", "countries");
-
 
 queue()
   .defer(d3.json, "json/world-110m.json")
@@ -123,6 +129,11 @@ function ready(error, world, countryData) {
     });
 
   svg.append("circle").attr("cx", centerpoint[0]).attr("cy", centerpoint[1]).attr("r", 1).attr("class", "dot hidden");
+  $('#globe-svg').append($markerEl);
+  var markerCenterX = centerpoint[0] - 8;
+  var markerCenterY = centerpoint[1] - 22;
+  marker = d3.select('.marker-group').attr('class','marker-group yellow hidden').attr("transform", "translate(" + markerCenterX + "," + markerCenterY + ")");
+
 
   buildArcs();
 
@@ -136,14 +147,28 @@ function ready(error, world, countryData) {
   //Country focus on option select
 
   d3.select("select").on("change", function() {
+    changeCountry(this.value);
+  });
+
+  function changeCountry(countryVal){
+
     var dot = d3.select(".dot");
 
     dot.classed('active', false).transition().duration(100).attr('r', 1).attr('fill', '#000').each('end', function() {
       dot.attr('class', 'dot hidden');
+      marker.classed('hidden',false).transition().delay(750).duration(500).style('opacity', 1).each('end',function(){
+        if (curArc < 3){
+          marker.transition().delay(2000).duration(500).style('opacity', 0).each('end',function(){
+              marker.classed('hidden',true).attr('class','marker-group hidden ' + markerColors[curArc]);
+          });
+        }
+      });
     });
 
+
+
     var rotate = projection.rotate(),
-      focusedCountry = country(countries, this),
+      focusedCountry = country(countries, countryVal),
       p = d3.geo.centroid(focusedCountry);
 
     svg.selectAll(".focused").classed("focused", focused = false);
@@ -168,10 +193,11 @@ function ready(error, world, countryData) {
           dot.classed("hidden", false).attr('class', 'dot active');
           dot = dot.transition().duration(100).attr('r', 20).attr('fill-opacity', .5).attr('fill', '#f4de63').ease('sine').transition().duration(20).attr('r', 5).attr('fill-opacity', 1).each('end', function() {
             //globe finished rotating, dot finished pulsing
+
           })
         })
     })();
-  });
+  }
 
   function buildArcs(){
 
@@ -180,9 +206,11 @@ function ready(error, world, countryData) {
     .attr("class","arcGroup");
     buildArc();
 
+
   };
 
   function buildArc(){
+
 
       var i = curArc;
       if (i==0){
@@ -202,11 +230,16 @@ function ready(error, world, countryData) {
       .attr('class','arc arc'+i)
       .attr("d", arc);
 
+      setTimeout(function(){
+        changeCountry(countryIDs[curArc]);
+      },1500);
+
       arcPath.transition()
       .delay(1500)
       .duration(750)
       .call(arcTween, arcData[i] * tau, arc)
       .each('end',function(){
+
         console.log('end');
         addText();
       });
@@ -224,9 +257,6 @@ function ready(error, world, countryData) {
           },500)
         }
       },2000)
-
-
-
     }
 
     function arcTween(transition, newAngle, arc) {
@@ -239,9 +269,9 @@ function ready(error, world, countryData) {
       });
     }
 
-  function country(cnt, sel) {
+  function country(cnt, countryVal) {
     for (var i = 0, l = cnt.length; i < l; i++) {
-      if (cnt[i].id == sel.value) {
+      if (cnt[i].id == countryVal) {
         return cnt[i];
       }
     }
@@ -250,7 +280,5 @@ function ready(error, world, countryData) {
   function randomNumber(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min);
   };
-
-
 
 };
