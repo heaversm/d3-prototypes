@@ -1,17 +1,31 @@
-var width = 800,
-  height = 600,
+var width = 1000,
+  height = 800,
   sens = 0.25,
   tau = Math.PI * 2,
   focused;
 
-var centerpoint = [400, 300],
-  globeRadius = 245;
+var introText = [  ];
 
+var centerpoint = [width/2, height/2],
+  globeRadius = 200;
 
+var arcData = [.33,.6,.9,1],
+    arcColors = ['#f2b31c', '#db4436','#4284f3','#109d5a'],
+    curArc = 0,
+    arcGroup = null;
+
+var infoGroup = null,
+$infoText = $('#infoText'),
+infoTextArray = [
+"The quarterly budget originated at Google headquarters in Mountain View, California.",
+"Ten days later it had traveled around the world and back again.",
+"Googlers in 20 different locations edited, viewed or commented on the spreadsheet.",
+"Select an office to see what happened there."
+];
 
 //Setting projection
 var projection = d3.geo.orthographic()
-  .scale(245)
+  .scale(globeRadius)
   .rotate([0, 0])
   .translate([centerpoint[0], centerpoint[1]])
   .clipAngle(90);
@@ -112,8 +126,11 @@ function ready(error, world, countryData) {
 
   buildArcs();
 
-  svg.append("polygon").attr("class", "earthshadow").attr("transform", "translate(100,50)").attr("points", earthShadow).attr('fill', 'black').attr('fill-opacity', .25);
+  svg.append("polygon").attr("class", "earthshadow").attr("transform", "translate(255,196) scale(.81632)").attr("points", earthShadow).attr('fill', 'black').attr('fill-opacity', .25);
 
+  infoGroup = svg.append("g")
+      .attr("transform", "translate(" + width / 2 + "," + height * .75 + ")")
+      .attr("class","textGroup");
 
 
   //Country focus on option select
@@ -157,16 +174,15 @@ function ready(error, world, countryData) {
   });
 
   function buildArcs(){
-    var arcData = [.33,.6,.9,1],
-    arcColors = ['#f2b31c', '#db4436','#4284f3','#109d5a'];
 
-    var arcGroup = svg.append("g")
+    arcGroup = svg.append("g")
     .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
     .attr("class","arcGroup");
+    buildArc();
 
-    var curArc = 0;
+  };
 
-    function buildArc(){
+  function buildArc(){
 
       var i = curArc;
       if (i==0){
@@ -183,27 +199,38 @@ function ready(error, world, countryData) {
       var arcPath = arcGroup.append("path")
       .datum({endAngle: startAngle})
       .style("fill", arcColors[i])
-      .attr('class','arc'+i)
+      .attr('class','arc arc'+i)
       .attr("d", arc);
 
       arcPath.transition()
-      .delay(i*500)
+      .delay(1500)
       .duration(750)
       .call(arcTween, arcData[i] * tau, arc)
       .each('end',function(){
-        curArc++;
-        if (curArc<arcData.length){
-          buildArc();
-        }
-
+        console.log('end');
+        addText();
       });
     }
 
-    buildArc();
+    function addText(){
+      $infoText.text(infoTextArray[curArc]).addClass('active');
+      setTimeout(function(){
+        curArc++;
+        if (curArc<arcData.length){
+          $infoText.removeClass('active').addClass('inactive');
+          setTimeout(function(){
+            $infoText.removeClass('inactive');
+            buildArc();
+          },500)
+        }
+      },2000)
+
+
+
+    }
 
     function arcTween(transition, newAngle, arc) {
       transition.attrTween("d", function(d) {
-        console.log(d.endAngle,newAngle);
         var interpolate = d3.interpolate(d.endAngle, newAngle);
         return function(t) {
           d.endAngle = interpolate(t);
@@ -211,9 +238,6 @@ function ready(error, world, countryData) {
         };
       });
     }
-
-
-  };
 
   function country(cnt, sel) {
     for (var i = 0, l = cnt.length; i < l; i++) {
