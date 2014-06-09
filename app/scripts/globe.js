@@ -35,7 +35,13 @@ var projection = d3.geo.orthographic()
 var path = d3.geo.path()
   .projection(projection);
 
-var $markerEl = null,marker = null,markerColors=['yellow','red','blue','green'];
+var $markerEl = null,marker = null,
+markerColors=['yellow','red','blue','green'],
+translateOutX = centerpoint[0] -8, //MH - this could be handled better...
+translateOutY = centerpoint[1] -300,
+translateInX = centerpoint[0] -8,
+translateInY = centerpoint[1]-22,
+dot;
 
 //the points for the crescent shadow over the globe
 var earthShadow=[[543.658,224.391],[539.646,199.062],[533.009,174.291],[523.819,150.349],[512.176,127.5],[498.209,105.993],[482.07,86.063],[463.937,67.93],[444.007,51.791],[422.5,37.824],[399.651,26.181],[375.709,16.991],[350.938,10.354],[325.609,6.342],[300,5],[280,6.048],[285.609,6.342],[310.938,10.354],[335.709,16.991],[359.651,26.181],[382.5,37.824],[404.007,51.791],[423.937,67.93],[442.07,86.063],[458.209,105.993],[472.176,127.5],[483.819,150.349],[493.009,174.291],[499.646,199.062],[503.658,224.391],[505,250],[503.658,275.609],[499.646,300.938],[493.009,325.709],[483.819,349.65],[472.176,372.5],[458.209,394.007],[442.07,413.937],[423.937,432.07],[404.007,448.209],[382.5,462.176],[359.651,473.819],[335.709,483.009],[310.938,489.646],[285.609,493.658],[280,493.952],[300,495],[325.609,493.658],[350.938,489.646],[375.709,483.009],[399.651,473.819],[422.5,462.176],[444.007,448.209],[463.937,432.07],[482.07,413.937],[498.209,394.007],[512.176,372.5],[523.819,349.65],[533.009,325.709],[539.646,300.938],[543.658,275.609],[545,250]];
@@ -130,9 +136,8 @@ function ready(error, world, countryData) {
 
   svg.append("circle").attr("cx", centerpoint[0]).attr("cy", centerpoint[1]).attr("r", 1).attr("class", "dot hidden");
   $('#globe-svg').append($markerEl);
-  var markerCenterX = centerpoint[0] - 8;
-  var markerCenterY = centerpoint[1] - 22;
-  marker = d3.select('.marker-group').attr('class','marker-group yellow hidden').attr("transform", "translate(" + markerCenterX + "," + markerCenterY + ")");
+  dot = d3.select(".dot");
+  marker = d3.select('.marker-group').attr('class','marker-group yellow hidden').attr("transform", "translate(" + translateInX + "," + translateInY + ")");
 
 
   buildArcs();
@@ -150,22 +155,44 @@ function ready(error, world, countryData) {
     changeCountry(this.value);
   });
 
-  function changeCountry(countryVal){
+  function markerIn(markerIndex){
 
-    var translateOutX = centerpoint[0] -8;
-    var translateOutY = centerpoint[1] -300;
-    marker.transition().duration(500).style('opacity', 0).attr('transform','translate(' + translateOutX + ', ' + translateOutY + ')').each('end',function(){
-        marker.classed('hidden',true).attr('class','marker-group hidden ' + markerColors[curArc]);
-    });
-
-    var dot = d3.select(".dot");
     dot.classed('active', false).transition().duration(100).attr('r', 1).attr('fill', '#4b4949').each('end', function() {
       dot.attr('class', 'dot hidden');
     });
 
+    if (markerIndex){
+      var markerColor = markerColors[markerIndex];
+    } else {
+      var markerColor = markerColors[curArc];
+    }
+    marker.transition().duration(500).style('opacity', 0).attr('transform','translate(' + translateOutX + ', ' + translateOutY + ')').each('end',function(){
+        marker.classed('hidden',true).attr('class','marker-group hidden ' + markerColor);
+    });
+  }
+
+  function markerOut(){
+    dot.classed("hidden", false).attr('class', 'dot active');
+
+    marker.classed('hidden',false).transition().ease('bounce-ease-out').duration(500).style('opacity', 1).attr('transform','translate(' + translateInX + ', ' + translateInY + ')');
+      dot.transition().duration(100).attr('r', 20).attr('fill', '#4b4949').ease('sine').transition().duration(20).attr('r', 5).attr('fill-opacity', 1).each('end', function() {
+    })
+  }
+
+  function changeCountry(countryVal,mode){
+
+    if (mode == 'auto'){
+      markerIn();
+    } else {
+      var markerColor = randomNumber(0,3);
+      markerIn(markerColor);
+    }
+
     var rotate = projection.rotate(),
       focusedCountry = country(countries, countryVal),
       p = d3.geo.centroid(focusedCountry);
+      var countryName = $('select').find('option[value="' + countryVal + '"]').text();
+      $('.markerCountry').text(countryName);
 
     svg.selectAll(".focused").classed("focused", focused = false);
 
@@ -185,14 +212,7 @@ function ready(error, world, countryData) {
               });
           };
         }).each("end", function() {
-          //show circle
-          dot.classed("hidden", false).attr('class', 'dot active');
-          //globe finished rotating, dot finished pulsing
-          var translateInX = centerpoint[0] -8;
-          var translateInY = centerpoint[1]-22;
-          marker.classed('hidden',false).transition().ease('bounce-ease-out').duration(500).style('opacity', 1).attr('transform','translate(' + translateInX + ', ' + translateInY + ')');
-          dot = dot.transition().duration(100).attr('r', 20).attr('fill', '#4b4949').ease('sine').transition().duration(20).attr('r', 5).attr('fill-opacity', 1).each('end', function() {
-          })
+          markerOut();
         })
     })();
   }
@@ -229,7 +249,7 @@ function ready(error, world, countryData) {
       .attr("d", arc);
 
       setTimeout(function(){
-        changeCountry(countryIDs[curArc]);
+        changeCountry(countryIDs[curArc], 'auto');
       },1500);
 
       arcPath.transition()

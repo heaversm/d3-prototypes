@@ -136,6 +136,33 @@
           fill: #4284F3;
         }
 
+        #markerText {
+          text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+          position: absolute;
+          top: 50%;
+          width: 22%;
+          left: 2%;
+          -webkit-transform: translate(0%, -50%);
+          transform: translate(0%, -50%);
+        }
+
+        .markerCountry {
+          font-weight: 600;
+          font-size: 25px;
+          margin: 0px;
+          text-indent: 20px;
+        }
+
+        .markerInfo {
+          padding-left: 20px;
+          padding-right: 0px;
+        }
+
+        .markerInfo li {
+          margin-bottom: 10px;
+          font-size: 12px;
+        }
+
         </style>
 
     </head>
@@ -145,6 +172,14 @@
         <![endif]-->
 
         <div id="infoText"></div>
+        <div id="markerText">
+          <h3 class="markerCountry">London</h3>
+          <ul class="markerInfo">
+            <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</li>
+            <li>Pellentesque tempor justo enim, ut aliquet eros condimentum quis. </li>
+            <li>Morbi eget elementum lectus.</li>
+          </ul>
+        </div>
 
         <script src="bower_components/jquery/jquery.js"></script>
         <script src="bower_components/d3/d3.min.js"></script>
