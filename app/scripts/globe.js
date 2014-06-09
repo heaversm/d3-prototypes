@@ -24,7 +24,7 @@ infoTextArray = [
 ];
 
 var links = [], arcLines = [], interactive = false,
-countryIDs = [840, 392, 724, 76];
+countryIDs = [840, 392, 484, 76];
 
 var sky = d3.geo.orthographic()
 .scale(globeRadius+30)
@@ -236,8 +236,10 @@ function ready(error, world, countryData, places) {
             refresh();
             $('.flyers').addClass('active').fadeTo(100,1);
           }
+          if (!interactive){
+            markerOut();
+          }
 
-          markerOut();
         })
     })();
   }
@@ -397,7 +399,9 @@ function ready(error, world, countryData, places) {
     function beginInteractive(){
       interactive = true;
       refresh();
+      markerIn();
       $('#country-select, #markerText,.flyers, .points').addClass('active').fadeTo(500,1);
+
     }
 
     function arcTween(transition, newAngle, arc) {
