@@ -10,167 +10,14 @@
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width">
         <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700' rel='stylesheet' type='text/css'>
-        <style>
-
-        body {
-          font-family: 'Open Sans', sans-serif;
-          font-weight: 300;
-          color: white;
-        }
-
-        #globe-svg {
-            background: #376aac;
-        }
-
-        .water {
-          fill: #E6E6E6;
-        }
-
-        .land {
-          fill: #5bb880;
-        }
-
-        .land:hover {
-          fill:#81edac;
-        }
-
-        .focused {
-          fill: #81edac;
-        }
-
-        select {
-          display: block;
-          border: solid #eee 1px;
-          height: 30px;
-          box-shadow: inset 1px 1px 2px #ddd8dc;
-        }
-
-        .countryTooltip {
-          position: absolute;
-          display: none;
-          pointer-events: none;
-          background: #fff;
-          padding: 5px;
-          text-align: left;
-          border: solid #ccc 1px;
-          color: #666;
-          font-size: 14px;
-          font-family: sans-serif;
-        }
-
-        .dot.hidden {
-            display: none;
-        }
-
-        #country-select {
-          position: absolute;
-          top: 87%;
-          width: 270px;
-          left: 50%;
-          -webkit-transform: translate(-50%, 0%);
-          transform: translate(-50%,0%);
-          display: none;
-          opacity: 0;
-        }
-
-        #country-select.active {
-          display: block;
-        }
-
-        #infoText {
-          position: absolute;
-          top: 80%;
-          width: 60%;
-          text-align: center;
-          font-size: 30px;
-          left: 50%;
-          -webkit-transform: translate(-50%, 10%);
-          transform: translate(-50%,10%);
-          -webkit-font-smoothing: antialiased;
-          text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
-          opacity: 0;
-          transition: all .5s ease-out;
-        }
-
-        #infoText.active {
-          -webkit-transform: translate(-50%, 0%);
-          transform: translate(-50%,0%);
-          opacity: 1;
-        }
-
-        #infoText.inactive {
-          -webkit-transform: translate(-50%, -10%);
-          transform: translate(-50%,-10%);
-          opacity: 0;
-        }
-
-        .marker-group {
-          opacity: 0;
-        }
-
-        .marker-group.hidden {
-          display: none;
-        }
-
-        .marker-group.green .marker-left {
-          fill: #1A8E57;
-        }
-
-        .marker-group.green .marker-right {
-          fill: #2BCC77;
-        }
-
-        .marker-group.yellow .marker-left {
-          fill: #D9A41A;
-        }
-
-        .marker-group.yellow .marker-right {
-          fill: #F2B409;
-        }
-
-        .marker-group.blue .marker-left {
-          fill: #3E70CA;
-        }
-
-        .marker-group.blue .marker-right {
-          fill: #4284F3;
-        }
-
-        #markerText {
-          text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
-          position: absolute;
-          top: 50%;
-          width: 22%;
-          left: 2%;
-          -webkit-transform: translate(0%, -50%);
-          transform: translate(0%, -50%);
-        }
-
-        .markerCountry {
-          font-weight: 600;
-          font-size: 25px;
-          margin: 0px;
-          text-indent: 20px;
-        }
-
-        .markerInfo {
-          padding-left: 20px;
-          padding-right: 0px;
-        }
-
-        .markerInfo li {
-          margin-bottom: 10px;
-          font-size: 12px;
-        }
-
-        </style>
-
+        <link rel="stylesheet" href="styles/main.css">
     </head>
     <body>
         <!--[if lt IE 10]>
             <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
 
+      <div id="container">
         <div id="infoText"></div>
         <div id="markerText">
           <h3 class="markerCountry">London</h3>
@@ -180,11 +27,12 @@
             <li>Morbi eget elementum lectus.</li>
           </ul>
         </div>
+      </div>
 
-        <script src="bower_components/jquery/jquery.js"></script>
-        <script src="bower_components/d3/d3.min.js"></script>
-        <script src="http://d3js.org/topojson.v1.min.js"></script>
-        <script src="http://d3js.org/queue.v1.min.js"></script>
-        <script src="scripts/globe.js"></script>
+      <script src="bower_components/jquery/jquery.js"></script>
+      <script src="bower_components/d3/d3.min.js"></script>
+      <script src="http://d3js.org/topojson.v1.min.js"></script>
+      <script src="http://d3js.org/queue.v1.min.js"></script>
+      <script src="scripts/globe.js"></script>
 </body>
 </html>

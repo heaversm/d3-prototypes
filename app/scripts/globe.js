@@ -20,7 +20,7 @@ infoTextArray = [
 "The quarterly budget originated at Google headquarters in Mountain View, California.",
 "Ten days later it had traveled around the world and back again.",
 "Googlers in 20 different locations edited, viewed or commented on the spreadsheet.",
-"Select an office to see what happened there."
+"Select an office to see <br/>what happened there."
 ];
 
 countryIDs = [840, 392, 724, 76];
@@ -53,7 +53,7 @@ d3.xml("img/marker-red.svg", "image/svg+xml", function(xml) {
 
 //SVG container
 
-var svg = d3.select("body").append("svg")
+var svg = d3.select("#container").append("svg")
   .attr("width", width)
   .attr("height", height)
   .attr('id','globe-svg');
@@ -67,8 +67,8 @@ svg.append("path")
   .attr("class", "water globe")
   .attr("d", path);
 
-var countryTooltip = d3.select("body").append("div").attr("class", "countryTooltip"),
-  countryList = d3.select("body").append("select").attr("name", "countries").attr('id','country-select');
+var countryTooltip = d3.select("#container").append("div").attr("class", "countryTooltip"),
+  countryList = d3.select("#container").append("select").attr("name", "countries").attr('id','country-select');
 
 queue()
   .defer(d3.json, "json/world-110m.json")
@@ -264,7 +264,7 @@ function ready(error, world, countryData) {
     }
 
     function addText(){
-      $infoText.text(infoTextArray[curArc]).addClass('active');
+      $infoText.html(infoTextArray[curArc]).addClass('active');
       setTimeout(function(){
         curArc++;
         if (curArc<arcData.length){
@@ -274,7 +274,7 @@ function ready(error, world, countryData) {
             buildArc();
           },500)
         } else {
-          $('#country-select').addClass('active').fadeTo(500,1);
+          $('#country-select, #markerText').addClass('active').fadeTo(500,1);
         }
       },2000)
     }
