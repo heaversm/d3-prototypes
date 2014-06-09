@@ -76,6 +76,8 @@ svg.append("path")
   .attr("class", "water globe")
   .attr("d", path);
 
+
+
 var countryTooltip = d3.select("#container").append("div").attr("class", "countryTooltip"),
   countryList = d3.select("#container").append("select").attr("name", "countries").attr('id','country-select');
 
@@ -111,6 +113,32 @@ function ready(error, world, countryData, places) {
 
   //Drag event
 
+  //Mouse events
+
+  .on("mouseover", function(d) {
+    if (countryById[d.id]){
+      countryTooltip.text(countryById[d.id])
+      .style("left", (d3.event.pageX + 7) + "px")
+      .style("top", (d3.event.pageY - 15) + "px")
+      .style("display", "block")
+      .style("opacity", 1);
+    }
+
+  })
+    .on("mouseout", function(d) {
+      if (countryById[d.id]){
+        countryTooltip.style("opacity", 0)
+        .style("display", "none");
+      }
+    })
+    .on("mousemove", function(d) {
+      if (countryById[d.id]){
+        countryTooltip.style("left", (d3.event.pageX + 7) + "px")
+        .style("top", (d3.event.pageY - 15) + "px");
+      }
+    });
+
+  var allGlobe = svg.selectAll('.globe')
   .call(d3.behavior.drag()
     .origin(function() {
       var r = projection.rotate();
@@ -120,6 +148,7 @@ function ready(error, world, countryData, places) {
       };
     })
     .on("drag", function() {
+
       var markerHidden = $('.marker').hasClass('hidden');
 
       var rotate = projection.rotate();
@@ -128,25 +157,7 @@ function ready(error, world, countryData, places) {
       refresh();
       svg.selectAll("path.land").attr("d", path);
       svg.selectAll(".focused").classed("focused", focused = false);
-    }))
-
-  //Mouse events
-
-  .on("mouseover", function(d) {
-    countryTooltip.text(countryById[d.id])
-      .style("left", (d3.event.pageX + 7) + "px")
-      .style("top", (d3.event.pageY - 15) + "px")
-      .style("display", "block")
-      .style("opacity", 1);
-  })
-    .on("mouseout", function(d) {
-      countryTooltip.style("opacity", 0)
-        .style("display", "none");
-    })
-    .on("mousemove", function(d) {
-      countryTooltip.style("left", (d3.event.pageX + 7) + "px")
-      .style("top", (d3.event.pageY - 15) + "px");
-    });
+    }));
 
   svg.append("circle").attr("cx", centerpoint[0]).attr("cy", centerpoint[1]).attr("r", 1).attr("class", "dot hidden");
   $('#globe-svg').append($markerEl);
