@@ -19,7 +19,7 @@ body {
   fill: #5bb880;
 }
 
-.land:hover {
+.land.active {
   fill:#81edac;
 }
 

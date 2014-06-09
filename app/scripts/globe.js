@@ -116,7 +116,9 @@ function ready(error, world, countryData, places) {
   //Mouse events
 
   .on("mouseover", function(d) {
+
     if (countryById[d.id]){
+      d3.select(this).attr('class','land globe active');
       countryTooltip.text(countryById[d.id])
       .style("left", (d3.event.pageX + 7) + "px")
       .style("top", (d3.event.pageY - 15) + "px")
@@ -127,6 +129,7 @@ function ready(error, world, countryData, places) {
   })
     .on("mouseout", function(d) {
       if (countryById[d.id]){
+        d3.select(this).attr('class','land globe');
         countryTooltip.style("opacity", 0)
         .style("display", "none");
       }
