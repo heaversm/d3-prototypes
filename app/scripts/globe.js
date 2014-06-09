@@ -120,6 +120,8 @@ function ready(error, world, countryData, places) {
       };
     })
     .on("drag", function() {
+      var markerHidden = $('.marker').hasClass('hidden');
+
       var rotate = projection.rotate();
       projection.rotate([d3.event.x * sens, -d3.event.y * sens, rotate[2]]);
       sky.rotate([d3.event.x * sens, -d3.event.y * sens, rotate[2]]);
@@ -224,12 +226,15 @@ function ready(error, world, countryData, places) {
 
             projection.rotate(r(t));
             sky.rotate(r(t));
-            svg.selectAll(".point").attr("d", path);
-            svg.selectAll(".globe").attr("d", path)
+            if (path){
+              svg.selectAll(".point").attr("d", path);
+
+              svg.selectAll(".globe").attr("d", path)
               .classed("focused", function(d, i) {
-                //MH - something throwing errors here
                 return d.id == focusedCountry.id ? focused = d : false;
               });
+            }
+
           };
         }).each("end", function() {
           if (interactive){
@@ -281,8 +286,6 @@ function ready(error, world, countryData, places) {
       .duration(750)
       .call(arcTween, arcData[i] * tau, arc)
       .each('end',function(){
-
-        console.log('end');
         addText();
       });
     }
