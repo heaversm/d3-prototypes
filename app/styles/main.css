@@ -1,11 +1,11 @@
-body {
+#globe-page {
   font-family: 'Open Sans', sans-serif;
   font-weight: 300;
   color: white;
   background: #376aac;
 }
 
-#container {
+#globe-container {
   width: 1000px;
   margin: 0 auto;
   position: relative;
@@ -19,22 +19,18 @@ body {
   fill: #5bb880;
 }
 
-.land.active {
-  fill:#81edac;
-}
-
-.focused {
+.land.focused {
   fill: #81edac;
 }
 
-select {
+#country-select {
   display: block;
   border: solid #eee 1px;
   height: 30px;
   box-shadow: inset 1px 1px 2px #ddd8dc;
 }
 
-.countryTooltip {
+.country-tooltip {
   position: absolute;
   display: none;
   pointer-events: none;
@@ -45,10 +41,6 @@ select {
   color: #666;
   font-size: 14px;
   font-family: sans-serif;
-}
-
-.dot.hidden {
-    display: none;
 }
 
 #country-select {
@@ -66,7 +58,11 @@ select {
   display: block;
 }
 
-#infoText {
+.dot.hidden {
+    display: none;
+}
+
+#info-text {
   position: absolute;
   top: 80%;
   width: 60%;
@@ -81,13 +77,13 @@ select {
   transition: all .5s ease-out;
 }
 
-#infoText.active {
+#info-text.active {
   -webkit-transform: translate(-50%, 0%);
   transform: translate(-50%,0%);
   opacity: 1;
 }
 
-#infoText.inactive {
+#info-text.inactive {
   -webkit-transform: translate(-50%, -10%);
   transform: translate(-50%,-10%);
   opacity: 0;
@@ -125,7 +121,7 @@ select {
   fill: #4284F3;
 }
 
-#markerText {
+#marker-text {
   text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
   position: absolute;
   top: 50%;
@@ -137,28 +133,28 @@ select {
   opacity: 0;
 }
 
-#markerText.active {
+#marker-text.active {
   display: block;
 }
 
-.markerCountry {
+.marker-country {
   font-weight: 600;
   font-size: 25px;
   margin: 0px;
   text-indent: 20px;
 }
 
-.markerInfo {
+.marker-info {
   padding-left: 20px;
   padding-right: 0px;
 }
 
-.markerInfo li {
+.marker-info li {
   margin-bottom: 10px;
   font-size: 12px;
 }
 
-.flyers {
+.flyers { /* the travel lines between countries */
   stroke-width:1;
   opacity: .6;
   stroke: darkred;

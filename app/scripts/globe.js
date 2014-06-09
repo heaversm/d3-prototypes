@@ -15,7 +15,7 @@ var arcData = [.33,.6,.9,1],
     arcGroup = null;
 
 var infoGroup = null,
-$infoText = $('#infoText'),
+$infoText = $('#info-text'),
 infoTextArray = [
 "The quarterly budget originated at Google headquarters in Mountain View, California.",
 "Ten days later it had traveled around the world and back again.",
@@ -62,7 +62,7 @@ d3.xml("img/marker-red.svg", "image/svg+xml", function(xml) {
 
 //SVG container
 
-var svg = d3.select("#container").append("svg")
+var svg = d3.select("#globe-container").append("svg")
   .attr("width", width)
   .attr("height", height)
   .attr('id','globe-svg');
@@ -76,10 +76,8 @@ svg.append("path")
   .attr("class", "water globe")
   .attr("d", path);
 
-
-
-var countryTooltip = d3.select("#container").append("div").attr("class", "countryTooltip"),
-  countryList = d3.select("#container").append("select").attr("name", "countries").attr('id','country-select');
+var countryTooltip = d3.select("#globe-container").append("div").attr("class", "country-tooltip"),
+  countryList = d3.select("#globe-container").append("select").attr("name", "countries").attr('id','country-select');
 
 queue()
   .defer(d3.json, "json/world-110m.json")
@@ -118,7 +116,7 @@ function ready(error, world, countryData, places) {
   .on("mouseover", function(d) {
 
     if (countryById[d.id]){
-      d3.select(this).attr('class','land globe active');
+      d3.select(this).attr('class','land globe focused');
       countryTooltip.text(countryById[d.id])
       .style("left", (d3.event.pageX + 7) + "px")
       .style("top", (d3.event.pageY - 15) + "px")
@@ -225,7 +223,7 @@ function ready(error, world, countryData, places) {
       focusedCountry = country(countries, countryVal),
       p = d3.geo.centroid(focusedCountry);
       var countryName = $('select').find('option[value="' + countryVal + '"]').text();
-      $('.markerCountry').text(countryName);
+      $('.marker-country').text(countryName);
 
     svg.selectAll(".focused").classed("focused", focused = false);
 
@@ -417,7 +415,7 @@ function ready(error, world, countryData, places) {
       interactive = true;
       refresh();
       markerIn();
-      $('#country-select, #markerText,.flyers, .points').addClass('active').fadeTo(500,1);
+      $('#country-select, #marker-text,.flyers, .points').addClass('active').fadeTo(500,1);
 
     }
 
