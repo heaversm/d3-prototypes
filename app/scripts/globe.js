@@ -155,6 +155,7 @@ function ready(error, world, countryData, places) {
   buildArcs();
   buildSky();
 
+
   svg.append("polygon").attr("class", "earthshadow").attr("transform", "translate(255,196) scale(.81632)").attr("points", earthShadow).attr('fill', 'black').attr('fill-opacity', .25);
 
   infoGroup = svg.append("g")
@@ -220,8 +221,10 @@ function ready(error, world, countryData, places) {
         .tween("rotate", function() {
           var r = d3.interpolate(projection.rotate(), [-p[0], -p[1]]);
           return function(t) {
+
             projection.rotate(r(t));
             sky.rotate(r(t));
+            svg.selectAll(".point").attr("d", path);
             svg.selectAll(".globe").attr("d", path)
               .classed("focused", function(d, i) {
                 //MH - something throwing errors here
@@ -290,6 +293,12 @@ function ready(error, world, countryData, places) {
       .interpolate("cardinal")
       .tension(.0);
 
+      svg.append("g").attr("class","points")
+      .selectAll("text").data(places.features)
+      .enter().append("path")
+      .attr("class", "point")
+      .attr("d", path);
+
       // spawn links between cities as source/target coord pairs
       places.features.forEach(function(a) {
         places.features.forEach(function(b) {
@@ -336,6 +345,7 @@ function ready(error, world, countryData, places) {
     }
 
     function refresh(){
+      svg.selectAll(".point").attr("d", path);
       svg.selectAll(".flyer")
       .attr("d", function(d) {
         return swoosh(flying_arc(d));
@@ -387,7 +397,7 @@ function ready(error, world, countryData, places) {
     function beginInteractive(){
       interactive = true;
       refresh();
-      $('#country-select, #markerText,.flyers').addClass('active').fadeTo(500,1);
+      $('#country-select, #markerText,.flyers, .points').addClass('active').fadeTo(500,1);
     }
 
     function arcTween(transition, newAngle, arc) {

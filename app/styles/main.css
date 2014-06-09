@@ -173,3 +173,11 @@ select {
   stroke-linejoin: round;
   fill:none;
 }
+
+.points {
+  display: none;
+}
+
+.points.active {
+  display: block;
+}
