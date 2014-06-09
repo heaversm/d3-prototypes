@@ -1,3 +1,53 @@
+var globeConfig = {
+  width: 1000,
+  height: 800,
+  centerpoint: [], //MH - need to calculate on init (width/2, height/2)
+  sens: .25,
+  tau: Math.PI * 2,
+  globeRadius: null, //MH - need to calculate on init (height/4)
+  arcColors: ['#f2b31c', '#db4436','#4284f3','#109d5a'],
+  markerColors: ['yellow','red','blue','green'],
+  arcPercentages: [.33,.6,.9,1], //the circular arc that goes around the globe, as a progression of percentages
+  infoTextArray: [ //the text of the animated intro
+    "The quarterly budget originated at Google headquarters in Mountain View, California.",
+    "Ten days later it had traveled around the world and back again.",
+    "Googlers in 20 different locations edited, viewed or commented on the spreadsheet.",
+    "Select an office to see <br/>what happened there."
+  ],
+  countryIDs: [840, 392, 484, 76], //countries which appear in the drop down
+  translateOutX: null, //MH - this could be handled better...
+  translateOutY: null, //positions of the marker when animated in and out
+  translateInX: null,
+  translateInY: null,
+  earthShadow: [[543.658,224.391],[539.646,199.062],[533.009,174.291],[523.819,150.349],[512.176,127.5],[498.209,105.993],[482.07,86.063],[463.937,67.93],[444.007,51.791],[422.5,37.824],[399.651,26.181],[375.709,16.991],[350.938,10.354],[325.609,6.342],[300,5],[280,6.048],[285.609,6.342],[310.938,10.354],[335.709,16.991],[359.651,26.181],[382.5,37.824],[404.007,51.791],[423.937,67.93],[442.07,86.063],[458.209,105.993],[472.176,127.5],[483.819,150.349],[493.009,174.291],[499.646,199.062],[503.658,224.391],[505,250],[503.658,275.609],[499.646,300.938],[493.009,325.709],[483.819,349.65],[472.176,372.5],[458.209,394.007],[442.07,413.937],[423.937,432.07],[404.007,448.209],[382.5,462.176],[359.651,473.819],[335.709,483.009],[310.938,489.646],[285.609,493.658],[280,493.952],[300,495],[325.609,493.658],[350.938,489.646],[375.709,483.009],[399.651,473.819],[422.5,462.176],[444.007,448.209],[463.937,432.07],[482.07,413.937],[498.209,394.007],[512.176,372.5],[523.819,349.65],[533.009,325.709],[539.646,300.938],[543.658,275.609],[545,250]], //MH - move to  data file?
+
+}
+
+var globeStates = {
+  focused: false,
+  curArc: 0,
+  arcGroup: null,
+  infoGroup: null,
+  interactive: false
+}
+
+var globeRefs = {
+  introText: [],
+  $infoText: null,
+  $markerEl: null,
+  links: [],
+  arcLines: [],
+  sky: null, //the matrix for the flyers
+  projection: null, //the matrix for the earth
+  path: null, //the geojson path for the countries
+  marker: null, //the pin that gets dropped in the center of the globe
+  dot: null, //the shadow beneath the marker
+  svg: null, //holds all globe paths,
+  countryTooltip: null, //displays the name of the country when hovering
+  countries: null,
+  world: null, //all land and water
+}
+
 var width = 1000,
   height = 800,
   sens = 0.25,
