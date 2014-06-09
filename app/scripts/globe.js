@@ -122,6 +122,8 @@ function ready(error, world, countryData, places) {
     .on("drag", function() {
       var rotate = projection.rotate();
       projection.rotate([d3.event.x * sens, -d3.event.y * sens, rotate[2]]);
+      sky.rotate([d3.event.x * sens, -d3.event.y * sens, rotate[2]]);
+      refresh();
       svg.selectAll("path.land").attr("d", path);
       svg.selectAll(".focused").classed("focused", focused = false);
     }))
