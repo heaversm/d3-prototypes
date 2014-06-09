@@ -23,7 +23,15 @@ infoTextArray = [
 "Select an office to see <br/>what happened there."
 ];
 
+var links = [], arcLines = [], interactive = false,
 countryIDs = [840, 392, 724, 76];
+
+var sky = d3.geo.orthographic()
+.scale(globeRadius+30)
+.rotate([0,0])
+.translate([centerpoint[0], centerpoint[1]])
+.clipAngle(90);
+
 
 //Setting projection
 var projection = d3.geo.orthographic()
@@ -33,7 +41,8 @@ var projection = d3.geo.orthographic()
   .clipAngle(90);
 
 var path = d3.geo.path()
-  .projection(projection);
+  .projection(projection)
+  .pointRadius(2);
 
 var $markerEl = null,marker = null,
 markerColors=['yellow','red','blue','green'],
@@ -73,11 +82,12 @@ var countryTooltip = d3.select("#container").append("div").attr("class", "countr
 queue()
   .defer(d3.json, "json/world-110m.json")
   .defer(d3.tsv, "json/world-110m-country-names.tsv")
+  .defer(d3.json, "json/places.json")
   .await(ready);
 
 //Main function
 
-function ready(error, world, countryData) {
+function ready(error, world, countryData, places) {
 
   var countryById = {},
     countries = topojson.feature(world, world.objects.countries).features;
@@ -131,7 +141,7 @@ function ready(error, world, countryData) {
     })
     .on("mousemove", function(d) {
       countryTooltip.style("left", (d3.event.pageX + 7) + "px")
-        .style("top", (d3.event.pageY - 15) + "px");
+      .style("top", (d3.event.pageY - 15) + "px");
     });
 
   svg.append("circle").attr("cx", centerpoint[0]).attr("cy", centerpoint[1]).attr("r", 1).attr("class", "dot hidden");
@@ -141,13 +151,13 @@ function ready(error, world, countryData) {
 
 
   buildArcs();
+  buildSky();
 
   svg.append("polygon").attr("class", "earthshadow").attr("transform", "translate(255,196) scale(.81632)").attr("points", earthShadow).attr('fill', 'black').attr('fill-opacity', .25);
 
   infoGroup = svg.append("g")
       .attr("transform", "translate(" + width / 2 + "," + height * .75 + ")")
       .attr("class","textGroup");
-
 
   //Country focus on option select
 
@@ -172,11 +182,12 @@ function ready(error, world, countryData) {
   }
 
   function markerOut(){
+
     dot.classed("hidden", false).attr('class', 'dot active');
 
     marker.classed('hidden',false).transition().ease('bounce-ease-out').duration(500).style('opacity', 1).attr('transform','translate(' + translateInX + ', ' + translateInY + ')');
       dot.transition().duration(100).attr('r', 20).attr('fill', '#4b4949').ease('sine').transition().duration(20).attr('r', 5).attr('fill-opacity', 1).each('end', function() {
-    })
+    });
   }
 
   function changeCountry(countryVal,mode){
@@ -184,6 +195,9 @@ function ready(error, world, countryData) {
     if (mode == 'auto'){
       markerIn();
     } else {
+      $('.flyers').fadeTo(100,0,function(){
+        $(this).removeClass('active');
+      });
       var markerColor = randomNumber(0,3);
       markerIn(markerColor);
     }
@@ -205,6 +219,7 @@ function ready(error, world, countryData) {
           var r = d3.interpolate(projection.rotate(), [-p[0], -p[1]]);
           return function(t) {
             projection.rotate(r(t));
+            sky.rotate(r(t));
             svg.selectAll(".globe").attr("d", path)
               .classed("focused", function(d, i) {
                 //MH - something throwing errors here
@@ -212,6 +227,11 @@ function ready(error, world, countryData) {
               });
           };
         }).each("end", function() {
+          if (interactive){
+            refresh();
+            $('.flyers').addClass('active').fadeTo(100,1);
+          }
+
           markerOut();
         })
     })();
@@ -223,12 +243,9 @@ function ready(error, world, countryData) {
     .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
     .attr("class","arcGroup");
     buildArc();
-
-
   };
 
   function buildArc(){
-
 
       var i = curArc;
       if (i==0){
@@ -263,6 +280,92 @@ function ready(error, world, countryData) {
       });
     }
 
+    function buildSky(){
+
+      swoosh = d3.svg.line()
+      .x(function(d) { return d[0] })
+      .y(function(d) { return d[1] })
+      .interpolate("cardinal")
+      .tension(.0);
+
+      // spawn links between cities as source/target coord pairs
+      places.features.forEach(function(a) {
+        places.features.forEach(function(b) {
+          if (a !== b) {
+            links.push({
+              source: a.geometry.coordinates,
+              target: b.geometry.coordinates
+            });
+          }
+        });
+      });
+
+      // build geoJSON features from links array
+      links.forEach(function(e,i,a) {
+        var feature =   { "type": "Feature", "geometry": { "type": "LineString", "coordinates": [e.source,e.target] }}
+        arcLines.push(feature)
+      });
+
+      //flight paths between locations
+      svg.append("g").attr("class","flyers")
+      .selectAll("path").data(links)
+      .enter().append("path")
+      .attr("class","flyer")
+      .attr("d", function(d) { return swoosh(flying_arc(d)) });
+
+      //refresh();
+
+    }
+
+    function flying_arc(pts) {
+      var source = pts.source,
+          target = pts.target;
+
+      var mid = location_along_arc(source, target, .5);
+      var result = [ projection(source),
+      sky(mid),
+      projection(target) ];
+      return result;
+    }
+
+    function location_along_arc(start, end, loc) {
+      var interpolator = d3.geo.interpolate(start,end);
+      return interpolator(loc)
+    }
+
+    function refresh(){
+      svg.selectAll(".flyer")
+      .attr("d", function(d) {
+        return swoosh(flying_arc(d));
+      }).attr("opacity", function(d) {
+        return fade_at_edge(d);
+      });
+    }
+
+    function fade_at_edge(d) {
+
+      var centerPos = projection.invert([width/2,height/2]),
+          arc = d3.geo.greatArc(),
+          start, end;
+      // function is called on 2 different data structures..
+      if (d.source) {
+        start = d.source,
+        end = d.target;
+      }
+      else {
+        start = d.geometry.coordinates[0];
+        end = d.geometry.coordinates[1];
+      }
+
+      var start_dist = 1.57 - arc.distance({source: start, target: centerPos}),
+          end_dist = 1.57 - arc.distance({source: end, target: centerPos});
+
+      var fade = d3.scale.linear().domain([-.1,0]).range([0,.1])
+      var dist = start_dist < end_dist ? start_dist : end_dist;
+
+      return fade(dist)
+    }
+
     function addText(){
       $infoText.html(infoTextArray[curArc]).addClass('active');
       setTimeout(function(){
@@ -274,9 +377,15 @@ function ready(error, world, countryData) {
             buildArc();
           },500)
         } else {
-          $('#country-select, #markerText').addClass('active').fadeTo(500,1);
+          beginInteractive();
         }
       },2000)
+    }
+
+    function beginInteractive(){
+      interactive = true;
+      refresh();
+      $('#country-select, #markerText,.flyers').addClass('active').fadeTo(500,1);
     }
 
     function arcTween(transition, newAngle, arc) {

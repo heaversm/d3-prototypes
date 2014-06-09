@@ -157,3 +157,19 @@ select {
   margin-bottom: 10px;
   font-size: 12px;
 }
+
+.flyers {
+  stroke-width:1;
+  opacity: .6;
+  stroke: darkred;
+  display: none;
+}
+
+.flyers.active {
+  display: block;
+}
+
+.flyer {
+  stroke-linejoin: round;
+  fill:none;
+}
