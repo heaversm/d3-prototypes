@@ -15,9 +15,12 @@
 #slider-container {
     height: 24px;
     width: 80%;
-    margin: 20px auto;
-    position: relative;
+    left: 50%;
+    top: 10%;
+    position: absolute;
     z-index: 2;
+    -webkit-transform: translateX(-50%);
+    transform: translateX(-50%);
 }
 
 .slider-bar-container {

@@ -427,7 +427,8 @@ var globeModule = (function($, window) {
     globeStates.interactive = true;
     refreshMap();
     animateMarkerIn();
-    $('#country-select, #marker-text,.flyers, .points').addClass('active').fadeTo(500,1); //MH - should be tied to a common element?
+    $('#marker-text,.flyers, .points').addClass('active').fadeTo(500,1); //MH - should be tied to a common element?
+    //$('#country-select').fadeTo(500,1); //MH - reinstate this to select and animate to countries by region
   };
 
   function refreshMap(){

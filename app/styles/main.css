@@ -62,7 +62,7 @@
 }
 
 #country-select.active {
-  display: block;
+  /*display: block; */
 }
 
 .dot.hidden {
