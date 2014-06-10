@@ -156,9 +156,8 @@
 }
 
 .flyers { /* the travel lines between countries */
-  stroke-width:1;
+  stroke-width:2;
   opacity: .6;
-  stroke: darkred;
   display: none;
 }
 

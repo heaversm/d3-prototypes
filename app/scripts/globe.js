@@ -383,6 +383,11 @@ var globeModule = (function($, window) {
     .selectAll("path").data(globeRefs.links)
     .enter().append("path")
     .attr("class","flyer")
+    .attr("stroke",function(d,i){
+      var numColors = globeConfig.arcColors.length;
+      var colorIndex = i % numColors;
+      return globeConfig.arcColors[colorIndex];
+    })
     .attr("d", function(d) { return globeRefs.swoosh(flightArc(d)) });
   }
 
