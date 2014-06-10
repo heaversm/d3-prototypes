@@ -159,7 +159,7 @@ var globeModule = (function($, window) {
 
   function loadData(){
     queue()
-    .defer(d3.json, "json/world-110m.json")
+    .defer(d3.json, "json/world-110m.json") //MH - load simplified json file here
     .defer(d3.tsv, "json/world-110m-country-names.tsv")
     .defer(d3.json, "json/places.json")
     .await(dataReady);
@@ -345,7 +345,7 @@ var globeModule = (function($, window) {
 
               globeRefs.svg.selectAll(".globe").attr("d", globeRefs.path)
               .classed("focused", function(d, i) {
-                return d.id == focusedCountry.id ? focused = d : false;
+                return d.id == focusedCountry.id ? focused = d : false; //MH - simplified JSON fails here (no country ids)
               });
             }
 
