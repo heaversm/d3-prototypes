@@ -13,7 +13,8 @@ var collabModule = (function($, window) {
 
   var barRefs = {
     $sliderHandle: null,
-    $sliderElapsed: null
+    $sliderElapsed: null,
+    $dragContainer: null
   }
 
   var barStates = {
@@ -31,6 +32,7 @@ var collabModule = (function($, window) {
   function setReferences(){
     barRefs.$sliderHandle = $('.slider-handle');
     barRefs.$sliderElapsed = $('.slider-bar.elapsed');
+    barRefs.$dragContainer = $('#drag-text-container');
   }
 
   function layoutBar(){
@@ -57,6 +59,7 @@ var collabModule = (function($, window) {
   }
 
   function onDragSliderStart(e){
+    barRefs.$dragContainer.addClass('active');
     var barPos = $(this).position().left;
     barStates.barPos = Math.round((barPos / barStates.barWidth)*100);
     var dir = e.gesture.direction;
@@ -109,6 +112,7 @@ var collabModule = (function($, window) {
     }
     barRefs.$sliderHandle.animate({'left' : barConfig.waypoints[barStates.curWaypoint].pos + '%'});
     barRefs.$sliderElapsed.animate({'width' : barConfig.waypoints[barStates.curWaypoint].pos + '%'});
+    barRefs.$dragContainer.removeClass('active');
     //console.log(barStates.curWaypoint);
   }
 
