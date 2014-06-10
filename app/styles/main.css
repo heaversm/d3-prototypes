@@ -2,11 +2,12 @@
   font-family: 'Open Sans', sans-serif;
   font-weight: 300;
   color: white;
-  background: #376aac;
 }
 
 #globe-container {
   width: 1000px;
+  height: 800px;
+  overflow: hidden;
   margin: 0 auto;
   position: relative;
   background: #376aac;
@@ -14,6 +15,11 @@
 
 .water {
   fill: #E6E6E6;
+}
+
+.globe-shadow {
+  fill: #000;
+  fill-opacity: .1;
 }
 
 .land {

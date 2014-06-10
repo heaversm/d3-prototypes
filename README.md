@@ -1,9 +1,9 @@
 D3 Prototypes
 =============
 
-### Globe ###
+### Globe
 
-** References **
+**References**
 
 * [Arcs](http://bl.ocks.org/dwtkns/4973620)
 * [Globe](https://gist.github.com/KoGor/5994804)

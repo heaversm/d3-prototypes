@@ -83,6 +83,7 @@ var globeModule = (function($, window) {
     addProjection();
     addPath();
     addCountryList();
+    addGlobeShadow();
     addWater();
     addSky();
   }
@@ -124,6 +125,16 @@ var globeModule = (function($, window) {
     })
     .attr("class", "water globe")
     .attr("d", globeRefs.path);
+  }
+
+  function addGlobeShadow(){
+    globeRefs.svg.append("rect")
+    .attr("x", 0)
+    .attr("y", 0)
+    .attr("width", globeConfig.globeRadius*2)
+    .attr("height", globeConfig.height)
+    .attr("class","globe-shadow")
+    .attr("transform","rotate(-45,100,100) translate(-30,600)"); //MH dynamic way to find tangent
   }
 
   function addMarker(){
