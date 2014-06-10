@@ -1,13 +1,13 @@
 var collabModule = (function($, window) {
   var barConfig = {
     waypoints: [
-      { type: "start"},
+      { type: "start","content" : ""},
       { type: "waypoint","content" : "Using Google Sheets, Katherine in Finance created the quarterly budget"},
       { type: "waypoint","content" : "She shared it with the VPs of Engineering, Operations, Product Management and Sales"},
       { type: "waypoint","content" : "As they filled it out, the VPs inserted comments to get additional input from teammates"},
       { type: "waypoint","content" : "They gave other people access to edit, comment, or view only."},
       { type: "waypoint","content" : "Then Katherine shared the spreadsheet with her boss, Rhonda, for review."},
-      { type: "end"}
+      { type: "end","content" : ""}
     ],
   }
 
@@ -59,6 +59,13 @@ var collabModule = (function($, window) {
   function onDragSliderStart(e){
     var barPos = $(this).position().left;
     barStates.barPos = Math.round((barPos / barStates.barWidth)*100);
+    var dir = e.gesture.direction;
+    if (dir == "right"){
+      var barText = barConfig.waypoints[barStates.curWaypoint+1].content;
+    } else if (dir == "left") {
+      var barText = barConfig.waypoints[barStates.curWaypoint-1].content;
+    }
+    $('.drag-text').text(barText);
   }
 
   function onDragSlider(e){
