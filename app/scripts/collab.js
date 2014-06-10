@@ -60,13 +60,41 @@ var collabModule = (function($, window) {
     var moveXPerc = Math.round((moveX/barStates.barWidth)*100);
     var newPos = moveXPerc + barStates.barPos;
     if (newPos >= 0 && newPos <= 100){
-      $(this).css({'left' : newPos + '%'});
+      //if we havent surpassed a waypoint
+      if (e.gesture.direction == "right" && barStates.curWaypoint < (barConfig.waypoints.length-1)){
+        if (newPos < barConfig.waypoints[barStates.curWaypoint+1].pos){
+          $(this).css({'left' : newPos + '%'});
+        } else {
+
+          console.log('waypoint');
+        }
+      } else if (e.gesture.direction == "left" && barStates.curWaypoint > 0){
+        if (newPos > barConfig.waypoints[barStates.curWaypoint-1].pos){
+          $(this).css({'left' : newPos + '%'});
+        } else {
+          console.log('waypoint');
+        }
+      }
+
+
+
+    } else if (newPos < 0){
+      barStates.curWaypoint = 0;
+    } else if (newPos > 0){
+      barStates.curWaypoint = barConfig.waypoints.length-1;
     }
 
   }
 
   function onDragSliderEnd(e){
-
+    //assess the waypoint we are at - drag to closest waypoint
+    if (e.gesture.direction == "right" && barStates.curWaypoint < (barConfig.waypoints.length-1) ){
+      barStates.curWaypoint++;
+    } else if (e.gesture.direction == "left" && barStates.curWaypoint > 0){
+      barStates.curWaypoint--;
+    }
+    barRefs.$sliderHandle.animate({'left' : barConfig.waypoints[barStates.curWaypoint].pos + '%'});
+    //console.log(barStates.curWaypoint);
   }
 
   return {
