@@ -172,6 +172,7 @@ var globeModule = (function($, window) {
     globeRefs.countries = topojson.feature(world, world.objects.countries).features;
     addCountryOptions();
     addWorld();
+    addEarthShadow();
     addMarker();
     addTooltip();
     addDragHandlers();
@@ -223,6 +224,10 @@ var globeModule = (function($, window) {
         }
       });
 
+  }
+
+  function addEarthShadow(){
+    globeRefs.svg.append("polygon").attr("class", "earthshadow").attr("transform", "translate(255,196) scale(.81632)").attr("points", globeConfig.earthShadow).attr('fill', 'black').attr('fill-opacity', .25);
   }
 
   function addDragHandlers(){
