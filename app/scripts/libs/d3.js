@@ -600,7 +600,10 @@
           this.removeAttribute(name);
         }
       } else {
-        this.setAttribute(name, x);
+        if (x != undefined){
+          this.setAttribute(name, x);
+        }
+
       }
     }
     function attrFunctionNS() {
