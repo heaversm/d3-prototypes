@@ -8,7 +8,8 @@ var collabModule = (function($, window) {
   }
 
   var barRefs = {
-    $sliderHandle: null
+    $sliderHandle: null,
+    $sliderElapsed: null
   }
 
   var barStates = {
@@ -25,6 +26,7 @@ var collabModule = (function($, window) {
 
   function setReferences(){
     barRefs.$sliderHandle = $('.slider-handle');
+    barRefs.$sliderElapsed = $('.slider-bar.elapsed');
   }
 
   function layoutBar(){
@@ -64,15 +66,16 @@ var collabModule = (function($, window) {
       if (e.gesture.direction == "right" && barStates.curWaypoint < (barConfig.waypoints.length-1)){
         if (newPos < barConfig.waypoints[barStates.curWaypoint+1].pos){
           $(this).css({'left' : newPos + '%'});
+          barRefs.$sliderElapsed.css({'width' : newPos+ '%'});
         } else {
-
-          console.log('waypoint');
+          //console.log('waypoint');
         }
       } else if (e.gesture.direction == "left" && barStates.curWaypoint > 0){
         if (newPos > barConfig.waypoints[barStates.curWaypoint-1].pos){
           $(this).css({'left' : newPos + '%'});
+          barRefs.$sliderElapsed.css({'width' : newPos+ '%'});
         } else {
-          console.log('waypoint');
+          //console.log('waypoint');
         }
       }
 
@@ -94,6 +97,7 @@ var collabModule = (function($, window) {
       barStates.curWaypoint--;
     }
     barRefs.$sliderHandle.animate({'left' : barConfig.waypoints[barStates.curWaypoint].pos + '%'});
+    barRefs.$sliderElapsed.animate({'width' : barConfig.waypoints[barStates.curWaypoint].pos + '%'});
     //console.log(barStates.curWaypoint);
   }
 
