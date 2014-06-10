@@ -13,7 +13,8 @@ var collabModule = (function($, window) {
 
   var barStates = {
     barWidth: 0,
-    barPos: 0
+    barPos: 0,
+    curWaypoint: 0
   }
 
   function init(){
@@ -30,8 +31,9 @@ var collabModule = (function($, window) {
     var numWaypoints = barConfig.waypoints.length;
     for (var i=0; i< numWaypoints; i++){
       var $waypoint = $('<span class="slider-waypoint">');
-      var waypointPerc = ((i/(numWaypoints-1))*100) + '%';
-      $waypoint.css({'left' : waypointPerc});
+      var waypointPerc = ((i/(numWaypoints-1))*100) ;
+      barConfig.waypoints[i].pos = waypointPerc;
+      $waypoint.css({'left' : waypointPerc + '%'});
       $('.slider-waypoints').append($waypoint);
     }
 
@@ -46,7 +48,6 @@ var collabModule = (function($, window) {
     .on("dragstart", onDragSliderStart)
     .on("drag", onDragSlider)
     .on("dragend", onDragSliderEnd);
-
   }
 
   function onDragSliderStart(e){
@@ -58,7 +59,10 @@ var collabModule = (function($, window) {
     var moveX = e.gesture.deltaX;
     var moveXPerc = Math.round((moveX/barStates.barWidth)*100);
     var newPos = moveXPerc + barStates.barPos;
-    $(this).css({'left' : newPos + '%'});
+    if (newPos >= 0 && newPos <= 100){
+      $(this).css({'left' : newPos + '%'});
+    }
+
   }
 
   function onDragSliderEnd(e){

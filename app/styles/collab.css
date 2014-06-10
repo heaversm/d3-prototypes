@@ -63,6 +63,20 @@
     transform: translateY(-50%);
 }
 
+.slider-handle-container {
+    width: 98%;
+    height: 100%;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+}
+
+.slider-handle-relative {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
 .slider-handle {
     position: absolute;
     top: 0px;
