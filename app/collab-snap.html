@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+svg {
+  background: #376aac;
+}
+</style>
+<body>
+
+<svg id="svg">
+</svg>
+
+<script src="bower_components/jquery/jquery.js"></script>
+<script src="bower_components/Snap.svg/dist/snap.svg-min.js"></script>
+<!-- <script src="scripts/libs/d3.js"></script> -->
+<script>
+var mainModule = {
+  s: Snap("#svg"),
+  drawingConfig: {
+    lines: {
+      lineGroup: null,
+      lineArray: [],
+      strokeActive: '#FFF'
+    },
+    circles: {
+      amount: 20,
+      sizeMin: 10,
+      sizeMax: 20,
+      proximity: 100,
+      circleGroup: null,
+      circleArray: [],
+      animTime: 2000,
+      circleColors: ['#B22E30','#0B9C57', '#547DBE','#F2B31B'], //red, green, blue, yellow
+      circleSizes: [5,7,20,30] //radius
+    },
+    canvas: {
+      width: 800,
+      height: 500
+    }
+  },
+  circleStates: {
+    phase: 0
+  },
+  circleData: [
+    [
+      { size: 1, color: 1, position: { x: 37, y: 181 } },
+      { size: 1, color: 2, position: { x: 87, y: 141 }, connection: 0 }
+    ]
+  ],
+
+  init: function(){
+    this.addGroups();
+    this.makeCircles();
+  },
+
+  sizeCanvas: function(){
+    $('#svg').width(800).height(600);
+  },
+
+  addGroups: function(){
+    this.drawingConfig.lines.lineGroup = this.s.g().attr({id: 'lineGroup'});
+    this.drawingConfig.circles.circleGroup = this.s.g().attr({id: 'circleGroup'});
+  },
+
+  makeCircles: function(){
+
+    var theseCircles = this.circleData[this.circleStates.phase];
+
+    for (var i=0; i<theseCircles.length;i++){
+      var circleData = theseCircles[i];
+      var circleX = circleData.position.x;
+      var circleY = circleData.position.y;
+      var circleRadius = this.drawingConfig.circles.circleSizes[circleData.size];
+      var circleColorIndex = i%this.drawingConfig.circles.circleColors.length;
+      var circleFill = this.drawingConfig.circles.circleColors[circleColorIndex];
+
+      var circleShape = this.s.circle(circleX, circleY, circleRadius);
+      circleShape.attr({
+        fill: circleFill
+      });
+      this.drawingConfig.circles.circleGroup.add(circleShape);
+
+      if (circleData.connection != undefined){
+        var connectedCircle = theseCircles[circleData.connection];
+        var circle2X = connectedCircle.position.x;
+        var circle2Y = connectedCircle.position.y;
+        var dist = Math.ceil(mainModule.distance(circleX,circleY,circle2X,circle2Y));
+        var anim = dist/100;
+        var line = mainModule.drawingConfig.lines.lineGroup.line(circleX, circleY, circle2X, circle2Y).attr({stroke: this.drawingConfig.lines.strokeActive, strokeWidth: '3px', 'stroke-dasharray' : dist, 'stroke-dashoffset' : dist, 'data-anim' : anim});
+
+        this.drawingConfig.lines.lineArray.push(line);
+      }
+
+      //var circleIncline = this.setIncline();
+      //var circleObj = { incline: circleIncline, shape: circleShape };
+
+      //this.drawingConfig.circles.circleArray.push(circleObj);
+
+    }
+
+    this.connectLines();
+
+  },
+
+  connectLines: function(){
+    //var circleArray
+    var lineArray = this.drawingConfig.lines.lineArray;
+    for (var i=0; i< lineArray.length;i++){
+      /*var $curOffset = $(lineArray[i].node).css('stroke-dashoffset');
+      var curOffset = parseInt($curOffset, 10); //offset as px
+      console.log(curOffset);*/
+      $(lineArray[i].node).animate({'stroke-dashoffset' : 0},500);
+    }
+
+  },
+
+  setIncline: function(){
+    return { incX: this.randomNumber(-5,5), incY: this.randomNumber(-5,5) }
+  },
+
+  update: function(){
+
+    var lines = Snap.selectAll('line');
+    lines.remove();
+
+    for (var i=0; i<this.drawingConfig.circles.amount; i++){
+      var circle = this.drawingConfig.circles.circleArray[i];
+      var circleX = circle.shape.node.cx.animVal.value;
+      var circleY = circle.shape.node.cy.animVal.value;
+      //this.move(circle,circleX,circleY);
+
+      for (var j=0;j<i;j++){
+        if (i != j){
+          var circle2 = this.drawingConfig.circles.circleArray[j];
+          var circle2X = circle2.shape.node.cx.animVal.value;
+          var circle2Y = circle2.shape.node.cy.animVal.value;
+          var dist = mainModule.distance(circleX,circleY,circle2X,circle2Y);
+          if (dist <= mainModule.drawingConfig.circles.proximity){ //
+            var lineWeight = 10/dist;
+            var line = mainModule.drawingConfig.lines.lineGroup.line(circleX, circleY, circle2X, circle2Y).attr({stroke: '#a6a8ab', strokeWidth: '1px'});
+          }
+
+          if (dist <= 10) { //collision
+            circle.incline = mainModule.setIncline();
+            circle2.incline = mainModule.setIncline();
+          }
+
+        }
+      }
+
+    }
+
+    //setTimeout(function(){ mainModule.update(); },10);
+
+  },
+
+  distance: function(circleX,circleY,circle2X,circle2Y){
+    var distX = circle2X - circleX;
+    var distY = circle2Y - circleY;
+    distX = distX*distX;
+    distY = distY*distY;
+    return Math.sqrt(distX + distY);
+  },
+
+  /*move: function(circle,curX,curY){
+    if (curX > this.drawingConfig.canvas.width || curX < 0) {
+      circle.incline.incX = -circle.incline.incX;
+    }
+    if (curY > this.drawingConfig.canvas.height || curY < 0) {
+      circle.incline.incY = -circle.incline.incY;
+    }
+    curX = curX + circle.incline.incX;
+    curY = curY + circle.incline.incY;
+
+    if (curX > this.drawingConfig.canvas.width) {
+      curX = this.drawingConfig.canvas.width;
+      circle.incline = this.setIncline();
+    } else if (curX < 0) {
+      curX = 0;
+      circle.incline = this.setIncline();
+    }
+
+    if (curY > this.drawingConfig.canvas.height) {
+      curY = this.drawingConfig.canvas.height;
+      circle.incline = this.setIncline();
+    } else if (curY < 0) {
+      curY = 0;
+      circle.incline = this.setIncline();
+    }
+
+    circle.shape.attr({ cx: curX, cy: curY });
+
+  },*/
+
+  randomNumber: function(min,max){
+    return Math.floor(Math.random()*(max-min+1)+min);
+  },
+
+
+
+}
+
+mainModule.init();
+
+
+</script>
+</body>

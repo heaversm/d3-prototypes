@@ -229,19 +229,6 @@ function nodeRadius(d) {
       break;
   }
 }
-/*
-function isConnected(a, b) {
-    return isConnectedAsTarget(a, b) || isConnectedAsSource(a, b) || a.id == b.id;
-}
-
-function isConnectedAsSource(a, b) {
-    console.log(a.id,b.id,linkedByIndex[a.id+'-'+b.id]);
-    return linkedByIndex[a.id + "-" + b.id];
-}
-
-function isConnectedAsTarget(a, b) {
-    return linkedByIndex[b.id + "-" + a.id];
-}*/
 
 function tick() {
   node.attr("cx", function(d) { return d.x; })
@@ -261,6 +248,20 @@ $('#addCircles').on('click',function(){
 function randomNumber(min, max) {
   return Math.floor(Math.random() * (max - min + 1) + min);
 };
+
+/*
+function isConnected(a, b) {
+    return isConnectedAsTarget(a, b) || isConnectedAsSource(a, b) || a.id == b.id;
+}
+
+function isConnectedAsSource(a, b) {
+    console.log(a.id,b.id,linkedByIndex[a.id+'-'+b.id]);
+    return linkedByIndex[a.id + "-" + b.id];
+}
+
+function isConnectedAsTarget(a, b) {
+    return linkedByIndex[b.id + "-" + a.id];
+}*/
 
 init();
 
