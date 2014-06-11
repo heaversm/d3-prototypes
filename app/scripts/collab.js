@@ -59,16 +59,10 @@ var collabModule = (function($, window) {
   }
 
   function onDragSliderStart(e){
-    barRefs.$dragContainer.addClass('active');
+    barRefs.$dragContainer.removeClass('active');
     var barPos = $(this).position().left;
     barStates.barPos = Math.round((barPos / barStates.barWidth)*100);
-    var dir = e.gesture.direction;
-    if (dir == "right"){
-      var barText = barConfig.waypoints[barStates.curWaypoint+1].content;
-    } else if (dir == "left") {
-      var barText = barConfig.waypoints[barStates.curWaypoint-1].content;
-    }
-    $('.drag-text').text(barText);
+
   }
 
   function onDragSlider(e){
@@ -112,7 +106,12 @@ var collabModule = (function($, window) {
     }
     barRefs.$sliderHandle.animate({'left' : barConfig.waypoints[barStates.curWaypoint].pos + '%'});
     barRefs.$sliderElapsed.animate({'width' : barConfig.waypoints[barStates.curWaypoint].pos + '%'});
-    barRefs.$dragContainer.removeClass('active');
+    barRefs.$dragContainer.addClass('active');
+
+     var barText = barConfig.waypoints[barStates.curWaypoint].content;
+    $('.drag-text').text(barText);
+
+
     //console.log(barStates.curWaypoint);
   }
 
