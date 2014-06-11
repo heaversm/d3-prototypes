@@ -1,4 +1,4 @@
-var collabModule = (function($, window) {
+var collabBar = (function($, window) {
   var barConfig = {
     waypoints: [
       { type: "start","content" : ""},
@@ -120,4 +120,4 @@ var collabModule = (function($, window) {
   }
 })(jQuery, window);
 
-collabModule.init();
+collabBar.init();

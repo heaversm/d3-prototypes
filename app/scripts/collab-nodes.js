@@ -1,20 +1,3 @@
-<!DOCTYPE html>
-<meta charset="utf-8">
-<style>
-
-svg {
-  background: #376aac;
-}
-</style>
-<body>
-
-<svg id="svg">
-</svg>
-
-<script src="bower_components/jquery/jquery.js"></script>
-<script src="bower_components/Snap.svg/dist/snap.svg-min.js"></script>
-<!-- <script src="scripts/libs/d3.js"></script> -->
-<script>
 var collabNodes = (function($,window){
   var s = Snap("#svg");
 
@@ -131,7 +114,3 @@ var collabNodes = (function($,window){
 })(jQuery,window);
 
 collabNodes.init();
-
-
-</script>
-</body>
