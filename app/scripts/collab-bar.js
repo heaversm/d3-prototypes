@@ -9,6 +9,7 @@ var collabBar = (function($, window) {
       { type: "waypoint","content" : "Then Katherine shared the spreadsheet with her boss, Rhonda, for review."},
       { type: "end","content" : ""}
     ],
+    numWaypoints: null
   }
 
   var barRefs = {
@@ -27,6 +28,7 @@ var collabBar = (function($, window) {
     setReferences();
     layoutBar();
     addBarEvents();
+    initializeNodes();
   }
 
   function setReferences(){
@@ -37,6 +39,7 @@ var collabBar = (function($, window) {
 
   function layoutBar(){
     var numWaypoints = barConfig.waypoints.length;
+    barConfig.numWaypoints = numWaypoints;
     for (var i=0; i< numWaypoints; i++){
       var $waypoint = $('<span class="slider-waypoint">');
       var waypointPerc = ((i/(numWaypoints-1))*100) ;
@@ -56,6 +59,10 @@ var collabBar = (function($, window) {
     .on("dragstart", onDragSliderStart)
     .on("drag", onDragSlider)
     .on("dragend", onDragSliderEnd);
+  }
+
+  function initializeNodes(){
+    collabNodes.init();
   }
 
   function onDragSliderStart(e){
@@ -87,7 +94,7 @@ var collabBar = (function($, window) {
         }
       }
 
-
+      collabNodes.update(newPos);
 
     } else if (newPos < 0){
       barStates.curWaypoint = 0;
@@ -116,8 +123,8 @@ var collabBar = (function($, window) {
   }
 
   return {
-    init: init
+    init: init,
+    barConfig: barConfig
   }
 })(jQuery, window);
 
-collabBar.init();
