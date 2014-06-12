@@ -32,7 +32,12 @@ var collabNodes = (function($,window){
     [
       { size: 1, color: 0, position: { x: 37, y: 181 } },
       { size: 1, color: 1, position: { x: 87, y: 141 } },
-      { size: 3, color: 2, position: { x: 330, y: 237 }, connection: [0,1] }
+      { size: 2, color: 3, position: { x: 330, y: 237 }, connection: [0,1] }
+    ],
+    [
+      { size: 1, color: 0, position: { x: 337, y: 281 } },
+      { size: 1, color: 1, position: { x: 487, y: 141 } },
+      { size: 2, color: 3, position: { x: 390, y: 287 }, connection: [0,1] }
     ]
   ];
 
@@ -51,7 +56,7 @@ var collabNodes = (function($,window){
   }
 
   function makeCircles(){
-    var theseCircles = circleData[circleStates.phase];
+    var theseCircles = circleData[collabBar.barStates.curWaypoint];
 
     for (var i=0; i<theseCircles.length;i++){
       var thisCircleData = theseCircles[i];
@@ -67,22 +72,17 @@ var collabNodes = (function($,window){
         } else {
           var nodeAvatar = s.path("M35.466,26.221c1.99-1.188,3.514-3.356,3.514-5.844c0-3.76-2.957-6.809-6.718-6.809c-3.76,0-6.762,3.049-6.762,6.809c0,2.487,0.99,4.656,2.98,5.845c-3.048,1.376-5.366,4.538-5.366,8.222v15.479h17V34.443C40.115,30.76,38.515,27.598,35.466,26.221z").attr({'fill' : circleFill});
         }
-        var nodeIcon = s.g(nodeCircle,nodeAvatar).attr({class: 'node-icon', transform: 'translate(' + (circleX-circleRadius) + ',' +  (circleY-circleRadius) + ') '});
-        drawingConfig.circles.circleGroup.add(nodeIcon);
-        /*Snap.load(iconFile, function (file) {
-          file.select(".node-avatar").attr({fill: circleFill});
-          var nodeIcon = file.select("g");
-          var nodeRadius = parseInt(nodeIcon.select('circle').attr('r'));
-          nodeIcon.attr({ transform: 'translate(' + (circleX-nodeRadius) + ',' +  (circleY-nodeRadius) + ') scale(0) '});
-          drawingConfig.circles.circleGroup.add(nodeIcon);
-          nodeIcon.animate({ transform: 'translate(' + (circleX-nodeRadius) + ',' +  (circleY-nodeRadius) + ') scale(1) ' },500,mina.backout);
-        })*/
+        var nodeIcon = s.g(nodeCircle,nodeAvatar).attr({class: 'node-icon', transform: 'scale(0)' });
+        var nodePositioner = s.g(nodeIcon).attr({class: 'node-positioner', transform: 'translate(' + (circleX-circleRadius) + ',' +  (circleY-circleRadius) + ')' })
+        drawingConfig.circles.circleGroup.add(nodePositioner);
+
       } else { //circle
         var circleShape = s.circle(circleX, circleY, circleRadius);
         circleShape.attr({
           fill: circleFill,
-          r: circleRadius
-        });
+          r: circleRadius,
+          class: 'node-circle'
+        })
         drawingConfig.circles.circleGroup.add(circleShape);
       }
 
@@ -94,9 +94,7 @@ var collabNodes = (function($,window){
           var circle2Y = connectedCircle.position.y;
           var dist = Math.ceil(distance(circleX,circleY,circle2X,circle2Y));
           var increment = Math.ceil(dist / (100/collabBar.barConfig.numWaypoints));
-          console.log(increment);
           var line = drawingConfig.lines.lineGroup.line(circleX, circleY, circle2X, circle2Y).attr({stroke: drawingConfig.lines.strokeActive, strokeWidth: '3px', 'stroke-dasharray' : dist, 'stroke-dashoffset' : dist, 'data-increment' : increment , 'data-dist' : dist });
-
           drawingConfig.lines.lineArray.push(line);
         }
 
@@ -104,7 +102,7 @@ var collabNodes = (function($,window){
 
     }
 
-    //animateCircles();
+    animateCircles();
     connectLines();
 
     /*circleStates.phase++;
@@ -112,20 +110,27 @@ var collabNodes = (function($,window){
 
   }
 
-  function update(progress){
-    connectLines(progress);
+  function update(progress,dir){
+    connectLines(progress,dir);
   }
 
   function animateCircles(){
-    var circles = s.selectAll('circle');
+    var circles = s.selectAll('.node-circle');
     for (var i=0; i< circles.length; i++){
       var circle = circles[i];
       circle.animate({r: 10},500,mina.backout);
     }
 
+    var nodeIcons = s.selectAll('.node-icon');
+    for (var i=0; i< nodeIcons.length; i++){
+      var nodeIcon = nodeIcons[i];
+      nodeIcon.animate({transform: 'scale(1)'}, 500, mina.backout);
+    }
+
   }
 
-  function connectLines(progress){
+  function connectLines(progress,dir){
+    console.log(dir);
     var lineArray = drawingConfig.lines.lineArray;
     for (var i=0; i< lineArray.length;i++){
       var $node = $(lineArray[i].node);
@@ -135,18 +140,29 @@ var collabNodes = (function($,window){
       var $curOffset = $node.css('stroke-dashoffset');
       var curOffset = parseInt($curOffset, 10); //offset as px
 
-      var newOffset = dist-(progress*increment);
-
-      if (newOffset < 0){
-        newOffset = 0;
+      if (curOffset > increment && dir == "right"){
+        var sectionProgress = progress % collabBar.barConfig.percentPerWaypoint
+        var newOffset = dist-(sectionProgress*increment);
+        if (newOffset < 0){
+          newOffset = 0;
+        }
+        if (newOffset > dist){
+          newOffset = dist;
+        }
+        $node.css({'stroke-dashoffset' : newOffset});
+      } else if (dir == "left"){
+        var sectionProgress = progress % collabBar.barConfig.percentPerWaypoint
+        var newOffset = dist-(sectionProgress*increment);
+        if (newOffset < 0){
+          newOffset = 0;
+        }
+        if (newOffset > dist){
+          newOffset = dist;
+        }
+        $node.css({'stroke-dashoffset' : newOffset});
       }
 
-      if (newOffset > dist){
-        newOffset = dist;
-      }
 
-      $node.css({'stroke-dashoffset' : newOffset});
-      //$(lineArray[i].node).animate({'stroke-dashoffset' : 0},500);
     }
 
   }
@@ -165,7 +181,8 @@ var collabNodes = (function($,window){
 
   return {
     init: init,
-    update: update
+    update: update,
+    makeCircles: makeCircles
   }
 
 })(jQuery,window);

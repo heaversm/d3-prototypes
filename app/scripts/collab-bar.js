@@ -9,7 +9,8 @@ var collabBar = (function($, window) {
       { type: "waypoint","content" : "Then Katherine shared the spreadsheet with her boss, Rhonda, for review."},
       { type: "end","content" : ""}
     ],
-    numWaypoints: null
+    numWaypoints: null,
+    percentPerWaypoint: null
   }
 
   var barRefs = {
@@ -40,6 +41,7 @@ var collabBar = (function($, window) {
   function layoutBar(){
     var numWaypoints = barConfig.waypoints.length;
     barConfig.numWaypoints = numWaypoints;
+    barConfig.percentPerWaypoint = Math.ceil(100/numWaypoints);
     for (var i=0; i< numWaypoints; i++){
       var $waypoint = $('<span class="slider-waypoint">');
       var waypointPerc = ((i/(numWaypoints-1))*100) ;
@@ -76,34 +78,26 @@ var collabBar = (function($, window) {
     var moveX = e.gesture.deltaX;
     var moveXPerc = Math.round((moveX/barStates.barWidth)*100);
     var newPos = moveXPerc + barStates.barPos;
+    var dir = e.gesture.direction;
     if (newPos >= 0 && newPos <= 100){
       //if we havent surpassed a waypoint
-      if (e.gesture.direction == "right" && barStates.curWaypoint < (barConfig.waypoints.length-1)){
+      if (dir == "right" && barStates.curWaypoint < (barConfig.waypoints.length-1)){
         if (newPos < barConfig.waypoints[barStates.curWaypoint+1].pos){
           $(this).css({'left' : newPos + '%'});
           barRefs.$sliderElapsed.css({'width' : newPos+ '%'});
+          collabNodes.update(newPos, e.gesture.direction);
         } else {
-          /*barStates.curWaypoint++;
-          //collabNodes.makeCircles();
-          barRefs.$dragContainer.addClass('active');
-          var barText = barConfig.waypoints[barStates.curWaypoint].content;
-          $('.drag-text').text(barText);
-          //console.log('waypoint');*/
+          //
         }
-      } else if (e.gesture.direction == "left" && barStates.curWaypoint > 0){
+      } else if (dir == "left" && barStates.curWaypoint > 0){
         if (newPos > barConfig.waypoints[barStates.curWaypoint-1].pos){
           $(this).css({'left' : newPos + '%'});
           barRefs.$sliderElapsed.css({'width' : newPos+ '%'});
+          collabNodes.update(newPos,dir);
         } else {
-          /*barStates.curWaypoint--;
-          barRefs.$dragContainer.addClass('active');
-          var barText = barConfig.waypoints[barStates.curWaypoint].content;
-          $('.drag-text').text(barText);
-          //console.log('waypoint');*/
+          //
         }
       }
-
-      collabNodes.update(newPos);
 
     } else if (newPos < 0){
       barStates.curWaypoint = 0;
@@ -121,7 +115,11 @@ var collabBar = (function($, window) {
       barStates.curWaypoint--;
     }
     barRefs.$sliderHandle.animate({'left' : barConfig.waypoints[barStates.curWaypoint].pos + '%'});
-    barRefs.$sliderElapsed.animate({'width' : barConfig.waypoints[barStates.curWaypoint].pos + '%'});
+    barRefs.$sliderElapsed.animate({'width' : barConfig.waypoints[barStates.curWaypoint].pos + '%'},function(){
+      if (e.gesture.direction == "right"){
+        collabNodes.makeCircles();
+      }
+    });
     barRefs.$dragContainer.addClass('active');
 
      var barText = barConfig.waypoints[barStates.curWaypoint].content;
