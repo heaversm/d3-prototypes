@@ -22,7 +22,8 @@ var collabBar = (function($, window) {
   var barStates = {
     barWidth: 0,
     barPos: 0,
-    curWaypoint: 0
+    curWaypoint: 0,
+    passedWaypoints: []
   }
 
   function init(){
@@ -110,9 +111,14 @@ var collabBar = (function($, window) {
   function onDragSliderEnd(e){
     //assess the waypoint we are at - drag to closest waypoint
     if (e.gesture.direction == "right" && barStates.curWaypoint < (barConfig.waypoints.length-1) ){
+      barStates.passedWaypoints.push(barStates.curWaypoint);
+      console.log(barStates.curWaypoint);
+      collabNodes.finishLines();
       barStates.curWaypoint++;
+
     } else if (e.gesture.direction == "left" && barStates.curWaypoint > 0){
       barStates.curWaypoint--;
+      collabNodes.deleteLines();
     }
     barRefs.$sliderHandle.animate({'left' : barConfig.waypoints[barStates.curWaypoint].pos + '%'});
     barRefs.$sliderElapsed.animate({'width' : barConfig.waypoints[barStates.curWaypoint].pos + '%'},function(){

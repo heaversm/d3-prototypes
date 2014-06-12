@@ -225,7 +225,7 @@ var collabNodes = (function($,window){
           var circle2Y = connectedCircle.position.y;
           var dist = Math.ceil(distance(circleX,circleY,circle2X,circle2Y));
           var increment = Math.ceil(dist / (100/collabBar.barConfig.numWaypoints));
-          var line = drawingConfig.lines.lineGroup.line(circleX, circleY, circle2X, circle2Y).attr({stroke: drawingConfig.lines.strokeActive, strokeWidth: '3px', 'stroke-dasharray' : dist, 'stroke-dashoffset' : dist, 'data-increment' : increment , 'data-dist' : dist });
+          var line = drawingConfig.lines.lineGroup.line(circleX, circleY, circle2X, circle2Y).attr({'data-group': collabBar.barStates.curWaypoint, stroke: drawingConfig.lines.strokeActive, strokeWidth: '3px', 'stroke-dasharray' : dist, 'stroke-dashoffset' : dist, 'data-increment' : increment , 'data-dist' : dist });
           drawingConfig.lines.lineArray.push(line);
         }
 
@@ -284,20 +284,48 @@ var collabNodes = (function($,window){
         }
         $node.css({'stroke-dashoffset' : newOffset});
       } else if (dir == "left"){
-        var sectionProgress = progress % collabBar.barConfig.percentPerWaypoint
-        var newOffset = dist-(sectionProgress*increment);
-        if (newOffset < 0){
-          newOffset = 0;
+        var group =parseInt($node.attr('data-group'));
+        if (group == collabBar.barStates.curWaypoint-1){
+          console.log(group,collabBar.barStates.curWaypoint);
+          var sectionProgress = progress % collabBar.barConfig.percentPerWaypoint
+          var newOffset = dist-(sectionProgress*increment);
+          if (newOffset < 0){
+            newOffset = 0;
+          }
+          if (newOffset > dist){
+            newOffset = dist;
+          }
+          $node.css({'stroke-dashoffset' : newOffset});
         }
-        if (newOffset > dist){
-          newOffset = dist;
-        }
-        $node.css({'stroke-dashoffset' : newOffset});
+
       }
 
 
     }
 
+  }
+
+  function deleteLines(){
+    var lineArray = drawingConfig.lines.lineArray;
+    for (var i=0; i< lineArray.length;i++){
+      var $node = $(lineArray[i].node);
+      var group =parseInt($node.attr('data-group'));
+      if (group == collabBar.barStates.curWaypoint){
+        var offset = parseInt($node.attr('data-dist'));
+        $node.animate({'stroke-dashoffset' : offset});
+      }
+    }
+  }
+
+  function finishLines(){
+    var lineArray = drawingConfig.lines.lineArray;
+    for (var i=0; i< lineArray.length;i++){
+      var $node = $(lineArray[i].node);
+      var group =parseInt($node.attr('data-group'));
+      if (group == collabBar.barStates.curWaypoint){
+        $node.animate({'stroke-dashoffset' : 0});
+      }
+    }
   }
 
   function distance(circleX,circleY,circle2X,circle2Y){
@@ -315,7 +343,9 @@ var collabNodes = (function($,window){
   return {
     init: init,
     update: update,
-    makeCircles: makeCircles
+    makeCircles: makeCircles,
+    deleteLines: deleteLines,
+    finishLines: finishLines
   }
 
 })(jQuery,window);
