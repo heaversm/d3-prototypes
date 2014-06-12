@@ -121,6 +121,7 @@
     opacity: 0;
     transition: all  .3s ease-in;
     -webkit-transition: all  .3s ease-in;
+    display: none !important; /* MH - temp */
 }
 
 #drag-text-container.active {

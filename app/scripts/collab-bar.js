@@ -116,7 +116,7 @@ var collabBar = (function($, window) {
     }
     barRefs.$sliderHandle.animate({'left' : barConfig.waypoints[barStates.curWaypoint].pos + '%'});
     barRefs.$sliderElapsed.animate({'width' : barConfig.waypoints[barStates.curWaypoint].pos + '%'},function(){
-      if (e.gesture.direction == "right"){
+      if (e.gesture.direction == "right" && barStates.curWaypoint < (barConfig.waypoints.length-1)){
         collabNodes.makeCircles();
       }
     });
