@@ -16,7 +16,7 @@ var collabNodes = (function($,window){
       circleArray: [],
       animTime: 2000,
       circleColors: ['#B22E30','#0B9C57', '#547DBE','#F2B31B'], //red, green, blue, yellow
-      circleSizes: [5,7,20,30] //radius
+      circleSizes: [5,7,25,31] //radius
     },
     canvas: {
       width: 800,
@@ -32,7 +32,7 @@ var collabNodes = (function($,window){
     [
       { size: 1, color: 0, position: { x: 37, y: 181 } },
       { size: 1, color: 1, position: { x: 87, y: 141 } },
-      { size: 2, color: 3, position: { x: 330, y: 237 }, connection: [0,1] }
+      { size: 3, color: 2, position: { x: 330, y: 237 }, connection: [0,1] }
     ]
   ];
 
@@ -58,25 +58,30 @@ var collabNodes = (function($,window){
       var circleX = thisCircleData.position.x;
       var circleY = thisCircleData.position.y;
       var circleFill = drawingConfig.circles.circleColors[thisCircleData.color];
+      var circleRadius = drawingConfig.circles.circleSizes[thisCircleData.size];
 
       if (thisCircleData.size > 1){ //icon
+         var nodeCircle = s.circle(circleRadius, circleRadius, circleRadius).attr({fill: '#FFF', stroke: '#BFBFBF', 'stroke-width': 2 });
         if (thisCircleData.size == 2){
-          var iconFile = "img/node-icon-sm.svg"
+          var nodeAvatar = s.path("M28.283,21.098c1.586-0.946,2.892-2.675,2.892-4.657c0-2.996-2.311-5.426-5.308-5.426c-2.996,0-5.366,2.43-5.366,5.426c0,1.982,0.892,3.71,2.478,4.658c-2.43,1.097-4.174,3.616-4.174,6.552v11.961h13V27.651C31.805,24.715,30.713,22.196,28.283,21.098z").attr({'fill' : circleFill});
         } else {
-          var iconFile = "img/node-icon.svg"
+          var nodeAvatar = s.path("M35.466,26.221c1.99-1.188,3.514-3.356,3.514-5.844c0-3.76-2.957-6.809-6.718-6.809c-3.76,0-6.762,3.049-6.762,6.809c0,2.487,0.99,4.656,2.98,5.845c-3.048,1.376-5.366,4.538-5.366,8.222v15.479h17V34.443C40.115,30.76,38.515,27.598,35.466,26.221z").attr({'fill' : circleFill});
         }
-        Snap.load(iconFile, function (file) {
+        var nodeIcon = s.g(nodeCircle,nodeAvatar).attr({class: 'node-icon', transform: 'translate(' + (circleX-circleRadius) + ',' +  (circleY-circleRadius) + ') '});
+        drawingConfig.circles.circleGroup.add(nodeIcon);
+        /*Snap.load(iconFile, function (file) {
           file.select(".node-avatar").attr({fill: circleFill});
           var nodeIcon = file.select("g");
           var nodeRadius = parseInt(nodeIcon.select('circle').attr('r'));
-          nodeIcon.attr({ transform: 'translate(' + (circleX-nodeRadius) + ',' +  (circleY-nodeRadius) + ')'});
-          drawingConfig.circles.circleGroup.add(nodeIcon)
-        })
+          nodeIcon.attr({ transform: 'translate(' + (circleX-nodeRadius) + ',' +  (circleY-nodeRadius) + ') scale(0) '});
+          drawingConfig.circles.circleGroup.add(nodeIcon);
+          nodeIcon.animate({ transform: 'translate(' + (circleX-nodeRadius) + ',' +  (circleY-nodeRadius) + ') scale(1) ' },500,mina.backout);
+        })*/
       } else { //circle
-        var circleRadius = drawingConfig.circles.circleSizes[thisCircleData.size];
         var circleShape = s.circle(circleX, circleY, circleRadius);
         circleShape.attr({
-          fill: circleFill
+          fill: circleFill,
+          r: circleRadius
         });
         drawingConfig.circles.circleGroup.add(circleShape);
       }
@@ -99,12 +104,25 @@ var collabNodes = (function($,window){
 
     }
 
+    //animateCircles();
     connectLines();
+
+    /*circleStates.phase++;
+    makeCircles();*/
 
   }
 
   function update(progress){
     connectLines(progress);
+  }
+
+  function animateCircles(){
+    var circles = s.selectAll('circle');
+    for (var i=0; i< circles.length; i++){
+      var circle = circles[i];
+      circle.animate({r: 10},500,mina.backout);
+    }
+
   }
 
   function connectLines(progress){

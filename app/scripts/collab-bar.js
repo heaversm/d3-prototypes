@@ -83,14 +83,23 @@ var collabBar = (function($, window) {
           $(this).css({'left' : newPos + '%'});
           barRefs.$sliderElapsed.css({'width' : newPos+ '%'});
         } else {
-          //console.log('waypoint');
+          /*barStates.curWaypoint++;
+          //collabNodes.makeCircles();
+          barRefs.$dragContainer.addClass('active');
+          var barText = barConfig.waypoints[barStates.curWaypoint].content;
+          $('.drag-text').text(barText);
+          //console.log('waypoint');*/
         }
       } else if (e.gesture.direction == "left" && barStates.curWaypoint > 0){
         if (newPos > barConfig.waypoints[barStates.curWaypoint-1].pos){
           $(this).css({'left' : newPos + '%'});
           barRefs.$sliderElapsed.css({'width' : newPos+ '%'});
         } else {
-          //console.log('waypoint');
+          /*barStates.curWaypoint--;
+          barRefs.$dragContainer.addClass('active');
+          var barText = barConfig.waypoints[barStates.curWaypoint].content;
+          $('.drag-text').text(barText);
+          //console.log('waypoint');*/
         }
       }
 
@@ -118,13 +127,12 @@ var collabBar = (function($, window) {
      var barText = barConfig.waypoints[barStates.curWaypoint].content;
     $('.drag-text').text(barText);
 
-
-    //console.log(barStates.curWaypoint);
   }
 
   return {
     init: init,
-    barConfig: barConfig
+    barConfig: barConfig,
+    barStates: barStates
   }
 })(jQuery, window);
 
