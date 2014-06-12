@@ -30,8 +30,10 @@ var collabNodes = (function($,window){
 
   var circleData = [
     [
-      { size: 1, color: 0, position: { x: 37, y: 181 } },
-      { size: 1, color: 1, position: { x: 87, y: 141 } },
+      { size: 0, color: 3, position: { x: 330, y: 189 } },
+      { size: 1, color: 1, position: { x: 291, y: 223 } },
+      { size: 0, color: 2, position: { x: 481, y: 129 } },
+      { size: 0, color: 0, position: { x: 433, y: 251 } },
       { size: 2, color: 3, position: { x: 330, y: 237 }, connection: [0,1] }
     ],
     [
@@ -80,8 +82,9 @@ var collabNodes = (function($,window){
         var circleShape = s.circle(circleX, circleY, circleRadius);
         circleShape.attr({
           fill: circleFill,
-          r: circleRadius,
-          class: 'node-circle'
+          r: 0,
+          class: 'node-circle',
+          'data-r' : circleRadius
         })
         drawingConfig.circles.circleGroup.add(circleShape);
       }
@@ -118,7 +121,9 @@ var collabNodes = (function($,window){
     var circles = s.selectAll('.node-circle');
     for (var i=0; i< circles.length; i++){
       var circle = circles[i];
-      circle.animate({r: 10},500,mina.backout);
+
+      var circleRad = parseInt(circle.attr('data-r'));
+      circle.animate({r: circleRad},500,mina.backout);
     }
 
     var nodeIcons = s.selectAll('.node-icon');
