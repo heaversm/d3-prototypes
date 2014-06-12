@@ -323,7 +323,15 @@ var collabNodes = (function($,window){
       var $node = $(lineArray[i].node);
       var group =parseInt($node.attr('data-group'));
       if (group == collabBar.barStates.curWaypoint){
-        $node.animate({'stroke-dashoffset' : 0});
+        if (collabBar.barStates.curWaypoint == collabBar.barConfig.numWaypoints-2){
+
+          $node.animate({'stroke-dashoffset' : 0, 'stroke-width' : 2}).attr('stroke','#547DBE');
+        } else {
+          $node.animate({'stroke-dashoffset' : 0});
+        }
+
+      } else if (collabBar.barStates.curWaypoint -1 != undefined && group == collabBar.barStates.curWaypoint-1){
+        $node.animate({'stroke-width' : 2}).attr('stroke' , '#547DBE');
       }
     }
   }

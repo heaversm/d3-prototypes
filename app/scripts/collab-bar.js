@@ -80,7 +80,7 @@ var collabBar = (function($, window) {
     var moveXPerc = Math.round((moveX/barStates.barWidth)*100);
     var newPos = moveXPerc + barStates.barPos;
     var dir = e.gesture.direction;
-    if (newPos >= 0 && newPos <= 100){
+    if (newPos > 0 && newPos < 100){
       //if we havent surpassed a waypoint
       if (dir == "right" && barStates.curWaypoint < (barConfig.waypoints.length-1)){
         if (newPos < barConfig.waypoints[barStates.curWaypoint+1].pos){
@@ -100,10 +100,11 @@ var collabBar = (function($, window) {
         }
       }
 
-    } else if (newPos < 0){
+    } else if (newPos <= 0){
       barStates.curWaypoint = 0;
-    } else if (newPos > 0){
+    } else if (newPos >= 0){
       barStates.curWaypoint = barConfig.waypoints.length-1;
+      console.log('end');
     }
 
   }
@@ -112,7 +113,7 @@ var collabBar = (function($, window) {
     //assess the waypoint we are at - drag to closest waypoint
     if (e.gesture.direction == "right" && barStates.curWaypoint < (barConfig.waypoints.length-1) ){
       barStates.passedWaypoints.push(barStates.curWaypoint);
-      console.log(barStates.curWaypoint);
+
       collabNodes.finishLines();
       barStates.curWaypoint++;
 
