@@ -30,8 +30,9 @@ var collabNodes = (function($,window){
 
   var circleData = [
     [
-      { size: 1, color: 1, position: { x: 37, y: 181 } },
-      { size: 1, color: 2, position: { x: 87, y: 141 }, connection: 0 }
+      { size: 1, color: 0, position: { x: 37, y: 181 } },
+      { size: 1, color: 1, position: { x: 87, y: 141 } },
+      { size: 2, color: 3, position: { x: 330, y: 237 }, connection: [0,1] }
     ]
   ];
 
@@ -56,26 +57,44 @@ var collabNodes = (function($,window){
       var thisCircleData = theseCircles[i];
       var circleX = thisCircleData.position.x;
       var circleY = thisCircleData.position.y;
-      var circleRadius = drawingConfig.circles.circleSizes[thisCircleData.size];
-      var circleColorIndex = i%drawingConfig.circles.circleColors.length;
-      var circleFill = drawingConfig.circles.circleColors[circleColorIndex];
+      var circleFill = drawingConfig.circles.circleColors[thisCircleData.color];
 
-      var circleShape = s.circle(circleX, circleY, circleRadius);
-      circleShape.attr({
-        fill: circleFill
-      });
-      drawingConfig.circles.circleGroup.add(circleShape);
+      if (thisCircleData.size > 1){ //icon
+        if (thisCircleData.size == 2){
+          var iconFile = "img/node-icon-sm.svg"
+        } else {
+          var iconFile = "img/node-icon.svg"
+        }
+        Snap.load(iconFile, function (file) {
+          file.select(".node-avatar").attr({fill: circleFill});
+          var nodeIcon = file.select("g");
+          var nodeRadius = parseInt(nodeIcon.select('circle').attr('r'));
+          nodeIcon.attr({ transform: 'translate(' + (circleX-nodeRadius) + ',' +  (circleY-nodeRadius) + ')'});
+          drawingConfig.circles.circleGroup.add(nodeIcon)
+        })
+      } else { //circle
+        var circleRadius = drawingConfig.circles.circleSizes[thisCircleData.size];
+        var circleShape = s.circle(circleX, circleY, circleRadius);
+        circleShape.attr({
+          fill: circleFill
+        });
+        drawingConfig.circles.circleGroup.add(circleShape);
+      }
 
       if (thisCircleData.connection != undefined){
-        var connectedCircle = theseCircles[thisCircleData.connection];
-        var circle2X = connectedCircle.position.x;
-        var circle2Y = connectedCircle.position.y;
-        var dist = Math.ceil(distance(circleX,circleY,circle2X,circle2Y));
-        var increment = Math.ceil(dist / (100/collabBar.barConfig.numWaypoints));
-        console.log(increment);
-        var line = drawingConfig.lines.lineGroup.line(circleX, circleY, circle2X, circle2Y).attr({stroke: drawingConfig.lines.strokeActive, strokeWidth: '3px', 'stroke-dasharray' : dist, 'stroke-dashoffset' : dist, 'data-increment' : increment , 'data-dist' : dist });
+        for (var j=0;j<thisCircleData.connection.length;j++){
+          var connectIndex = thisCircleData.connection[j];
+          var connectedCircle = theseCircles[connectIndex];
+          var circle2X = connectedCircle.position.x;
+          var circle2Y = connectedCircle.position.y;
+          var dist = Math.ceil(distance(circleX,circleY,circle2X,circle2Y));
+          var increment = Math.ceil(dist / (100/collabBar.barConfig.numWaypoints));
+          console.log(increment);
+          var line = drawingConfig.lines.lineGroup.line(circleX, circleY, circle2X, circle2Y).attr({stroke: drawingConfig.lines.strokeActive, strokeWidth: '3px', 'stroke-dasharray' : dist, 'stroke-dashoffset' : dist, 'data-increment' : increment , 'data-dist' : dist });
 
-        drawingConfig.lines.lineArray.push(line);
+          drawingConfig.lines.lineArray.push(line);
+        }
+
       }
 
     }
@@ -89,7 +108,6 @@ var collabNodes = (function($,window){
   }
 
   function connectLines(progress){
-    //var circleArray
     var lineArray = drawingConfig.lines.lineArray;
     for (var i=0; i< lineArray.length;i++){
       var $node = $(lineArray[i].node);
@@ -109,7 +127,6 @@ var collabNodes = (function($,window){
         newOffset = dist;
       }
 
-      console.log(progress,increment,curOffset,newOffset,dist)
       $node.css({'stroke-dashoffset' : newOffset});
       //$(lineArray[i].node).animate({'stroke-dashoffset' : 0},500);
     }
