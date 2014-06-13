@@ -171,7 +171,11 @@ var collabNodes = (function($,window){
         } else {
           var nodeAvatar = s.path("M35.466,26.221c1.99-1.188,3.514-3.356,3.514-5.844c0-3.76-2.957-6.809-6.718-6.809c-3.76,0-6.762,3.049-6.762,6.809c0,2.487,0.99,4.656,2.98,5.845c-3.048,1.376-5.366,4.538-5.366,8.222v15.479h17V34.443C40.115,30.76,38.515,27.598,35.466,26.221z").attr({'fill' : circleFill});
         }
-        var nodeIcon = s.g(nodeCircle,nodeAvatar).attr({class: 'node-icon set'+circleSet, transform: 'scale(0)' });
+
+        var shadowRadius = circleRadius + (randomNumber(0,3));
+        var shadowPos = circleRadius + randomNumber(5,20);
+        var nodeShadow = s.circle(shadowPos, shadowPos, shadowRadius).attr({fill: '#000', 'fill-opacity': .1 });
+        var nodeIcon = s.g(nodeShadow,nodeCircle,nodeAvatar).attr({class: 'node-icon set'+circleSet, transform: 'scale(0)' });
         var nodePositioner = s.g(nodeIcon).attr({class: 'node-positioner', transform: 'translate(' + (circleX-circleRadius) + ',' +  (circleY-circleRadius) + ')' })
         drawingConfig.circles.circleGroup.add(nodePositioner);
 
@@ -182,7 +186,7 @@ var collabNodes = (function($,window){
           r: 0,
           class: 'node-circle set'+circleSet,
           'data-r' : circleRadius
-        })
+        });
         drawingConfig.circles.circleGroup.add(circleShape);
       }
 
