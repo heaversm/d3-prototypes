@@ -132,6 +132,7 @@ var collabBar = (function($, window) {
         } else {
           barStates.curWaypoint++;
           collabNodes.animateCircles();
+          collabNodes.decayLines(barStates.curWaypoint-1);
         }
       } else if (dir == "left"){
 
@@ -154,6 +155,7 @@ var collabBar = (function($, window) {
 
         } else {
           collabNodes.hideCircles(barStates.curWaypoint);
+          collabNodes.deleteLines(barStates.curWaypoint);
           barStates.curWaypoint--;
         }
 
@@ -161,8 +163,12 @@ var collabBar = (function($, window) {
 
     } else if (newPos <= 0){
       barStates.curWaypoint = 0;
-    } else if (newPos >= 0){
+      collabNodes.deleteLines(barStates.curWaypoint);
+      setBarToStart();
+    } else if (newPos >= 100){
       barStates.curWaypoint = barConfig.waypoints.length-1;
+      collabNodes.decayLines(barStates.curWaypoint-1);
+      setBarToEnd();
     }
 
   }
@@ -179,9 +185,9 @@ var collabBar = (function($, window) {
 
   function onDragSliderEnd(e){
     var dir = e.gesture.direction;
-    if (dir == "left" && barStates.curWaypoint == 0 && barStates.barPos < barConfig.textRange){
+    /*if (dir == "left" && barStates.curWaypoint == 0 && barStates.barPos < barConfig.textRange){
       setBarToStart();
-    }
+    }*/
   }
 
   function setBarToStart(){
