@@ -152,19 +152,22 @@ var collabBar = (function($, window) {
   }
 
   function animateSliderToNextWaypoint(dir){
-    if (dir == "left"){
-      var waypointIndex = barStates.curWaypoint;
-    } else {
-      var waypointIndex = barStates.curWaypoint+1;
-    }
-
-    barRefs.$sliderHandle.animate({'left' : barConfig.waypoints[waypointIndex].pos + '%'});
-    barRefs.$sliderElapsed.animate({'width' : barConfig.waypoints[waypointIndex].pos + '%'});
+    barRefs.$sliderHandle.animate({'left' : barConfig.waypoints[barStates.curWaypoint].pos + '%'});
+    barRefs.$sliderElapsed.animate({'width' : barConfig.waypoints[barStates.curWaypoint].pos + '%'});
   }
 
 
   function onDragSliderEnd(e){
-    animateSliderToNextWaypoint(e.gesture.direction);
+
+    var dir = e.gesture.direction;
+
+    if (dir == "right" && barStates.curWaypoint < (barConfig.waypoints.length-1) ){
+      barStates.curWaypoint++;
+    } else if (dir == "left" && barStates.curWaypoint > 0){
+      barStates.curWaypoint--;
+    }
+    animateSliderToNextWaypoint(dir);
+
   }
 
   return {
