@@ -78,10 +78,15 @@ var collabBar = (function($, window) {
     .on("drag", onDragSlider)
     .on("dragend", onDragSliderEnd);
 
-    $('#collab-autoplay').on('click',function(){
+    $('#collab-autoplay').one('click',function(){
       doAutoPlay();
+      cancelDragEvents();
     });
 
+  }
+
+  function cancelDragEvents(){
+    $('.slider-handle').off('dragstart drag dragend');
   }
 
   function doAutoPlay(){
