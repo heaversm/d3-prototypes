@@ -58,6 +58,15 @@
     <script src="scripts/collab-nodes.js"></script>
     <script src="scripts/collab-bar.js"></script>
     <script>
+
+    Array.prototype.getIndexBy = function (name, value) { //array helper function
+        for (var i = 0; i < this.length; i++) {
+            if (this[i][name] == value) {
+                return i;
+            }
+        }
+    }
+
     window.onload = function(){
         collabBar.init();
     }
