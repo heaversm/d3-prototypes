@@ -1,4 +1,7 @@
 var collabBar = (function($, window) {
+
+  var prevX = 0, curX =0;
+
   var barConfig = {
     waypoints: [
       { type: "start","content" : ""},
@@ -33,7 +36,6 @@ var collabBar = (function($, window) {
     //layoutBar();
     animateBar();
     addBarEvents();
-    initializeNodes();
   }
 
   function animateBar(){
@@ -64,6 +66,8 @@ var collabBar = (function($, window) {
 
     barStates.barWidth = $('.slider-bar-container').width();
 
+    initializeNodes();
+
   }
 
   function addBarEvents(){
@@ -86,43 +90,70 @@ var collabBar = (function($, window) {
 
   }
 
+  function getDirection(moveX){
+    prevX = curX;
+    curX = moveX;
+    if (prevX > curX){
+      return 'left';
+    } else if (prevX < curX) {
+      return 'right';
+    }
+  }
+
   function onDragSlider(e){
     var moveX = e.gesture.deltaX;
     var moveXPerc = Math.round((moveX/barStates.barWidth)*100);
     var newPos = moveXPerc + barStates.barPos;
-    var dir = e.gesture.direction;
+    var dir = getDirection(moveX);
+    //var dir = e.gesture.direction;
+
     if (newPos > 0 && newPos < 100){
+      collabNodes.update(newPos,dir);
       //if we havent surpassed a waypoint
-      if (dir == "right" && barStates.curWaypoint < (barConfig.waypoints.length-1)){
-        var waypointPos = barConfig.waypoints[barStates.curWaypoint+1].pos;
+      if (dir == "right" ){
+
+        if (barStates.curWaypoint == barConfig.waypoints.length-1){
+          var waypointPos = barConfig.waypoints.length-1;
+        } else {
+          var waypointPos = barConfig.waypoints[barStates.curWaypoint+1].pos;
+        }
+
         if (newPos < waypointPos){
           $(this).css({'left' : newPos + '%'});
           barRefs.$sliderElapsed.css({'width' : newPos+ '%'});
-          collabNodes.update(newPos, e.gesture.direction);
+          //collabNodes.update(newPos, e.gesture.direction);
 
           if (newPos >= waypointPos - barConfig.textRange){
-            showBarText('right');
+            showBarText(barStates.curWaypoint+1);
           } else {
             hideBarText();
           }
 
         } else {
           barStates.curWaypoint++;
+          collabNodes.animateCircles();
         }
-      } else if (dir == "left" && barStates.curWaypoint > 0){
-        var waypointPos = barConfig.waypoints[barStates.curWaypoint-1].pos;
+      } else if (dir == "left"){
+
+        if (barStates.curWaypoint == 0){
+          var waypointPos = 0;
+        } else {
+          var waypointPos = barConfig.waypoints[barStates.curWaypoint].pos;
+        }
+        //console.log(newPos, waypointPos);
         if (newPos > waypointPos){
           $(this).css({'left' : newPos + '%'});
           barRefs.$sliderElapsed.css({'width' : newPos+ '%'});
-          collabNodes.update(newPos,dir);
+          //collabNodes.update(newPos,dir);
 
           if (newPos <= waypointPos + barConfig.textRange){
-            showBarText('left');
+            showBarText(barStates.curWaypoint);
           } else {
             hideBarText();
           }
 
         } else {
+          collabNodes.hideCircles(barStates.curWaypoint);
           barStates.curWaypoint--;
         }
 
@@ -132,18 +163,13 @@ var collabBar = (function($, window) {
       barStates.curWaypoint = 0;
     } else if (newPos >= 0){
       barStates.curWaypoint = barConfig.waypoints.length-1;
-      console.log('end');
     }
 
   }
 
-  function showBarText(dir){
+  function showBarText(waypoint){
     barRefs.$dragContainer.addClass('active');
-    if (dir == "right"){
-      var barText = barConfig.waypoints[barStates.curWaypoint+1].content;
-    } else {
-      var barText = barConfig.waypoints[barStates.curWaypoint-1].content;
-    }
+    var barText = barConfig.waypoints[waypoint].content;
     $('.drag-text').text(barText);
   }
 
@@ -151,23 +177,27 @@ var collabBar = (function($, window) {
     barRefs.$dragContainer.removeClass('active');
   }
 
-  function animateSliderToNextWaypoint(dir){
-    barRefs.$sliderHandle.animate({'left' : barConfig.waypoints[barStates.curWaypoint].pos + '%'});
-    barRefs.$sliderElapsed.animate({'width' : barConfig.waypoints[barStates.curWaypoint].pos + '%'});
+  function onDragSliderEnd(e){
+    var dir = e.gesture.direction;
+    if (dir == "left" && barStates.curWaypoint == 0 && barStates.barPos < barConfig.textRange){
+      setBarToStart();
+    }
   }
 
+  function setBarToStart(){
+    barRefs.$sliderElapsed.css({'width' : '0%'});
+    barRefs.$sliderHandle.css({'left' : '0%'});
+    barStates.barPos = 0;
+  }
 
-  function onDragSliderEnd(e){
+  function setBarToEnd(){
+    barRefs.$sliderElapsed.css({'width' : '100%'});
+    barRefs.$sliderHandle.css({'left' : '100%'});
+    barStates.barPos = 100;
+  }
 
-    var dir = e.gesture.direction;
-
-    if (dir == "right" && barStates.curWaypoint < (barConfig.waypoints.length-1) ){
-      barStates.curWaypoint++;
-    } else if (dir == "left" && barStates.curWaypoint > 0){
-      barStates.curWaypoint--;
-    }
-    animateSliderToNextWaypoint(dir);
-
+  function animateSliderToNextWaypoint(dir){
+    console.log(barStates.curWaypoint,dir);
   }
 
   return {
