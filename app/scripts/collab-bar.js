@@ -151,8 +151,20 @@ var collabBar = (function($, window) {
     barRefs.$dragContainer.removeClass('active');
   }
 
-  function onDragSliderEnd(e){
+  function animateSliderToNextWaypoint(dir){
+    if (dir == "left"){
+      var waypointIndex = barStates.curWaypoint;
+    } else {
+      var waypointIndex = barStates.curWaypoint+1;
+    }
 
+    barRefs.$sliderHandle.animate({'left' : barConfig.waypoints[waypointIndex].pos + '%'});
+    barRefs.$sliderElapsed.animate({'width' : barConfig.waypoints[waypointIndex].pos + '%'});
+  }
+
+
+  function onDragSliderEnd(e){
+    animateSliderToNextWaypoint(e.gesture.direction);
   }
 
   return {
