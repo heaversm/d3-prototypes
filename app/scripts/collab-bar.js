@@ -89,6 +89,15 @@ var collabBar = (function($, window) {
     $('.slider-handle').off('dragstart drag dragend');
   }
 
+  function disableAutoplay(){
+    var displayVal = $('#collab-autoplay').css('display');
+    if (displayVal != 'none'){
+      $('#collab-autoplay').fadeTo(500,0,function(){
+        $(this).off('click').hide();
+      });
+    }
+  }
+
   function doAutoPlay(){
     if (barStates.curWaypoint == barConfig.numWaypoints-2){
       $('.slider-bar.auto').animate({'left': '100%' },{
@@ -125,10 +134,10 @@ var collabBar = (function($, window) {
   }
 
   function onDragSliderStart(e){
+    disableAutoplay();
     barRefs.$dragContainer.removeClass('active');
     var barPos = $(this).position().left;
     barStates.barPos = Math.round((barPos / barStates.barWidth)*100);
-
   }
 
   function getDirection(moveX){
