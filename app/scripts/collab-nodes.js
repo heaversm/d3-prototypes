@@ -190,8 +190,6 @@ var collabNodes = (function($,window){
         for (var j=0;j<thisCircleData.connection.length;j++){
           var connectIndex = thisCircleData.connection[j];
           var connectedCircle = theseCircles[theseCircles.getIndexBy("id", connectIndex)];
-          //debugger;
-          //var connectedCircle = theseCircles[connectIndex];
           var circle2X = connectedCircle.position.x;
           var circle2Y = connectedCircle.position.y;
           var dist = Math.ceil(distance(circleX,circleY,circle2X,circle2Y));

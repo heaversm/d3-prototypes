@@ -14,7 +14,8 @@ var collabBar = (function($, window) {
     ],
     numWaypoints: null,
     percentPerWaypoint: null,
-    textRange: 3 //percent distance at which the text will show on the bar
+    textRange: 3, //percent distance at which the text will show on the bar
+    autoDelay: 2000 //ms delay on each waypoint in autoplay
   }
 
   var barRefs = {
@@ -33,9 +34,7 @@ var collabBar = (function($, window) {
 
   function init(){
     setReferences();
-    //layoutBar();
     animateBar();
-    addBarEvents();
   }
 
   function animateBar(){
@@ -67,6 +66,7 @@ var collabBar = (function($, window) {
     barStates.barWidth = $('.slider-bar-container').width();
 
     initializeNodes();
+    addBarEvents();
 
   }
 
@@ -77,6 +77,42 @@ var collabBar = (function($, window) {
     .on("dragstart", onDragSliderStart)
     .on("drag", onDragSlider)
     .on("dragend", onDragSliderEnd);
+
+    $('#collab-autoplay').on('click',function(){
+      doAutoPlay();
+    });
+
+  }
+
+  function doAutoPlay(){
+    if (barStates.curWaypoint == barConfig.numWaypoints-2){
+      $('.slider-bar.auto').animate({'left': '100%' },{
+        duration: 500,
+        step: function(newPos){
+          moveSlider(newPos,'right');
+        },
+        complete: function(){
+          //
+        }
+      });
+    } else {
+      var waypointPos = barConfig.waypoints[barStates.curWaypoint+1].pos;
+      var amtToAnimate = Math.floor(waypointPos)-1;
+      $('.slider-bar.auto').animate({'left': amtToAnimate+'%' },{
+        duration: 500,
+        step: function(newPos){
+          moveSlider(newPos,'right');
+        },
+        complete: function(){
+          setTimeout(function(){
+            moveSlider(waypointPos,'right');
+            doAutoPlay();
+          },barConfig.autoDelay);
+        }
+      });
+
+    }
+
   }
 
   function initializeNodes(){
@@ -102,37 +138,35 @@ var collabBar = (function($, window) {
 
   function onDragSlider(e){
     var moveX = e.gesture.deltaX;
+    var dir = getDirection(moveX);
     var moveXPerc = Math.round((moveX/barStates.barWidth)*100);
     var newPos = moveXPerc + barStates.barPos;
-    var dir = getDirection(moveX);
-    //var dir = e.gesture.direction;
+    moveSlider(newPos,dir);
+  }
+
+  function moveSlider(newPos,dir){
 
     if (newPos > 0 && newPos < 100){
       collabNodes.update(newPos,dir);
       //if we havent surpassed a waypoint
       if (dir == "right" ){
 
-        if (barStates.curWaypoint == barConfig.waypoints.length-1){
-          var waypointPos = barConfig.waypoints.length-1;
-        } else {
-          var waypointPos = barConfig.waypoints[barStates.curWaypoint+1].pos;
-        }
+        var waypointPos = barConfig.waypoints[barStates.curWaypoint+1].pos;
 
-        if (newPos < waypointPos){
-          $(this).css({'left' : newPos + '%'});
+        if (newPos < waypointPos){ //if we haven't reached the next waypoint
+          barRefs.$sliderHandle.css({'left' : newPos + '%'});
           barRefs.$sliderElapsed.css({'width' : newPos+ '%'});
-          //collabNodes.update(newPos, e.gesture.direction);
 
-          if (newPos >= waypointPos - barConfig.textRange){
+          if (newPos >= waypointPos - barConfig.textRange){ //if we're in range, show text
             showBarText(barStates.curWaypoint+1);
-          } else {
+          } else { //keep text hidden
             hideBarText();
           }
 
-        } else {
+        } else { //waypoint reach, go to the next
           barStates.curWaypoint++;
           collabNodes.animateCircles();
-          collabNodes.decayLines(barStates.curWaypoint-1);
+          collabNodes.decayLines(barStates.curWaypoint-1); //decay the old lines
         }
       } else if (dir == "left"){
 
@@ -143,9 +177,8 @@ var collabBar = (function($, window) {
         }
         //console.log(newPos, waypointPos);
         if (newPos > waypointPos){
-          $(this).css({'left' : newPos + '%'});
+          barRefs.$sliderHandle.css({'left' : newPos + '%'});
           barRefs.$sliderElapsed.css({'width' : newPos+ '%'});
-          //collabNodes.update(newPos,dir);
 
           if (newPos <= waypointPos + barConfig.textRange){
             showBarText(barStates.curWaypoint);
@@ -153,7 +186,7 @@ var collabBar = (function($, window) {
             hideBarText();
           }
 
-        } else {
+        } else { //we've reached the previous waypoint
           collabNodes.hideCircles(barStates.curWaypoint);
           collabNodes.deleteLines(barStates.curWaypoint);
           barStates.curWaypoint--;
@@ -170,7 +203,6 @@ var collabBar = (function($, window) {
       collabNodes.decayLines(barStates.curWaypoint-1);
       setBarToEnd();
     }
-
   }
 
   function showBarText(waypoint){
