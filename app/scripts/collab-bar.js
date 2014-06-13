@@ -10,7 +10,8 @@ var collabBar = (function($, window) {
       { type: "end","content" : ""}
     ],
     numWaypoints: null,
-    percentPerWaypoint: null
+    percentPerWaypoint: null,
+    textRange: 3 //percent distance at which the text will show on the bar
   }
 
   var barRefs = {
@@ -93,21 +94,38 @@ var collabBar = (function($, window) {
     if (newPos > 0 && newPos < 100){
       //if we havent surpassed a waypoint
       if (dir == "right" && barStates.curWaypoint < (barConfig.waypoints.length-1)){
-        if (newPos < barConfig.waypoints[barStates.curWaypoint+1].pos){
+        var waypointPos = barConfig.waypoints[barStates.curWaypoint+1].pos;
+        if (newPos < waypointPos){
           $(this).css({'left' : newPos + '%'});
           barRefs.$sliderElapsed.css({'width' : newPos+ '%'});
           collabNodes.update(newPos, e.gesture.direction);
+
+          if (newPos >= waypointPos - barConfig.textRange){
+            showBarText('right');
+          } else {
+            hideBarText();
+          }
+
         } else {
-          //
+          barStates.curWaypoint++;
         }
       } else if (dir == "left" && barStates.curWaypoint > 0){
-        if (newPos > barConfig.waypoints[barStates.curWaypoint-1].pos){
+        var waypointPos = barConfig.waypoints[barStates.curWaypoint-1].pos;
+        if (newPos > waypointPos){
           $(this).css({'left' : newPos + '%'});
           barRefs.$sliderElapsed.css({'width' : newPos+ '%'});
           collabNodes.update(newPos,dir);
+
+          if (newPos <= waypointPos + barConfig.textRange){
+            showBarText('left');
+          } else {
+            hideBarText();
+          }
+
         } else {
-          //
+          barStates.curWaypoint--;
         }
+
       }
 
     } else if (newPos <= 0){
@@ -119,28 +137,21 @@ var collabBar = (function($, window) {
 
   }
 
-  function onDragSliderEnd(e){
-    //assess the waypoint we are at - drag to closest waypoint
-    if (e.gesture.direction == "right" && barStates.curWaypoint < (barConfig.waypoints.length-1) ){
-      barStates.passedWaypoints.push(barStates.curWaypoint);
-
-      collabNodes.finishLines();
-      barStates.curWaypoint++;
-
-    } else if (e.gesture.direction == "left" && barStates.curWaypoint > 0){
-      barStates.curWaypoint--;
-      collabNodes.deleteLines();
-    }
-    barRefs.$sliderHandle.animate({'left' : barConfig.waypoints[barStates.curWaypoint].pos + '%'});
-    barRefs.$sliderElapsed.animate({'width' : barConfig.waypoints[barStates.curWaypoint].pos + '%'},function(){
-      if (e.gesture.direction == "right" && barStates.curWaypoint < (barConfig.waypoints.length-1)){
-        collabNodes.makeCircles();
-      }
-    });
+  function showBarText(dir){
     barRefs.$dragContainer.addClass('active');
-
-     var barText = barConfig.waypoints[barStates.curWaypoint].content;
+    if (dir == "right"){
+      var barText = barConfig.waypoints[barStates.curWaypoint+1].content;
+    } else {
+      var barText = barConfig.waypoints[barStates.curWaypoint-1].content;
+    }
     $('.drag-text').text(barText);
+  }
+
+  function hideBarText(){
+    barRefs.$dragContainer.removeClass('active');
+  }
+
+  function onDragSliderEnd(e){
 
   }
 
