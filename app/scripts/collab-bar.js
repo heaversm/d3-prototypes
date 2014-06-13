@@ -16,6 +16,7 @@ var collabBar = (function($, window) {
   var barRefs = {
     $sliderHandle: null,
     $sliderElapsed: null,
+    $sliderRemaining: null,
     $dragContainer: null
   }
 
@@ -28,14 +29,23 @@ var collabBar = (function($, window) {
 
   function init(){
     setReferences();
-    layoutBar();
+    //layoutBar();
+    animateBar();
     addBarEvents();
     initializeNodes();
+  }
+
+  function animateBar(){
+    barRefs.$sliderRemaining.css({'height' : '0%'}).animate({'height' : '100%'});
+    barRefs.$sliderHandle.css({'left' : '100%'}).animate({'left': '0%'},function(){
+      layoutBar();
+    });
   }
 
   function setReferences(){
     barRefs.$sliderHandle = $('.slider-handle');
     barRefs.$sliderElapsed = $('.slider-bar.elapsed');
+    barRefs.$sliderRemaining = $('.slider-bar.remaining');
     barRefs.$dragContainer = $('#drag-text-container');
   }
 

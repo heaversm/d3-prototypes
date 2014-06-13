@@ -7,7 +7,7 @@
 #collab-container {
     background: #376aac;
     width: 1000px;
-    height: 800px;
+    height: 600px;
     overflow: hidden;
     position: absolute;
 }
@@ -31,7 +31,7 @@
     height: 24px;
     width: 80%;
     left: 50%;
-    top: 10%;
+    bottom: 5%;
     position: absolute;
     z-index: 2;
     -webkit-transform: translateX(-50%);
@@ -70,6 +70,9 @@
 
 .slider-bar.remaining {
     background: #FBCD44;
+    top: 50%;
+    -webkit-transform: translateY(-50%);
+    transform: translateY(-50%);
 }
 
 .slider-bar.elapsed {
