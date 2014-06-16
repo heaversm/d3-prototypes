@@ -267,8 +267,9 @@ var globeModule = (function($, window) {
         globeStates.markerHidden = $('.marker').hasClass('hidden');
 
         var rotate = globeRefs.projection.rotate();
-        globeRefs.projection.rotate([d3.event.x * globeConfig.sens, -d3.event.y * globeConfig.sens, rotate[2]]);
-        globeRefs.sky.rotate([d3.event.x * globeConfig.sens, -d3.event.y * globeConfig.sens, rotate[2]]);
+
+        globeRefs.projection.rotate([d3.event.x * globeConfig.sens, 0]);
+        globeRefs.sky.rotate([d3.event.x * globeConfig.sens, 0]);
         refreshMap();
         globeRefs.svg.selectAll("path.land").attr("d", globeRefs.path);
         globeRefs.svg.selectAll('path.marker-path').attr("d",globeRefs.path);
@@ -512,8 +513,8 @@ var globeModule = (function($, window) {
       var projCoords = globeRefs.projection(coords);
       return 'translate(' + projCoords[0] + ', ' + projCoords[1] + ')';
     })
-    .attr("opacity", function(d) {
-      //
+    .attr("opacity", function(d,i) {
+      return fadeMarker(d,i);
     });
 
 
@@ -524,6 +525,31 @@ var globeModule = (function($, window) {
     .attr("opacity", function(d) {
       return fadeAtEdge(d);
     });
+  }
+
+  function fadeMarker(d,i){
+      var centerPos = globeRefs.projection.invert([globeConfig.centerpoint[0],globeConfig.centerpoint[1]]),
+          arc = d3.geo.greatArc(),
+          start, end;
+      // function is called on 2 different data structures..
+      start = d.geometry.coordinates;
+
+      var start_dist = 1.57 - arc.distance({source: start, target: centerPos});
+
+      if (start_dist < 0){
+        return 0;
+      } else {
+        return 1;
+      }
+
+          //end_dist = 1.57 - arc.distance({source: end, target: centerPos});
+
+      //var fade = d3.scale.linear().domain([-.1,0]).range([0,.1]);
+
+
+
+      //var dist = start_dist < end_dist ? start_dist : end_dist;
+      //return fade(dist)
   }
 
   function fadeAtEdge(d){
