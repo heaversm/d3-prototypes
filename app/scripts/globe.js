@@ -1,5 +1,8 @@
 var globeModule = (function($, window) {
 
+  var curMarker = 0;
+  markerTimes = [0,0,1500,0,2500,0]
+
   var globeConfig = {
     width: 1000,
     height: 800,
@@ -162,12 +165,19 @@ var globeModule = (function($, window) {
           var numColors = globeConfig.arcColors.length;
           var colorIndex = i % numColors;
           return 'marker-group ' + globeConfig.markerColors[colorIndex];
-
         })
-        .select(".marker-path").attr("d", globeRefs.path);
+        .select('.marker-drop').attr('class',function(){
+          return 'marker-drop drop'+ i;
+        })
+        .select(".marker-path").attr("d", globeRefs.path)
       });
 
+      dropMarkers();
+
     });
+
+
+
   }
 
   function addCountryList(){
@@ -330,11 +340,14 @@ var globeModule = (function($, window) {
           var r = d3.interpolate(globeRefs.projection.rotate(), [360, 0]);
 
           return function(t) {
+            var rot = r(t);
+            var rotX = rot[0];
+            //console.log(rotX);
 
             globeRefs.projection.rotate(r(t));
             globeRefs.sky.rotate(r(t));
             if (globeRefs.path){
-              refreshMap();
+              refreshMap('auto');
             }
 
           };
@@ -486,7 +499,7 @@ var globeModule = (function($, window) {
     //$('#country-select').fadeTo(500,1); //MH - reinstate this to select and animate to countries by region
   };
 
-  function refreshMap(){
+  function refreshMap(mode){
     globeRefs.svg.selectAll(".globe").attr("d", globeRefs.path)
     globeRefs.svg.selectAll(".point").attr("d", globeRefs.path);
 
@@ -501,7 +514,6 @@ var globeModule = (function($, window) {
       return fadeMarker(d,i);
     });
 
-
     globeRefs.svg.selectAll(".flyer")
     .attr("d", function(d) {
       return globeRefs.swoosh(flightArc(d));
@@ -509,6 +521,23 @@ var globeModule = (function($, window) {
     .attr("opacity", function(d) {
       return fadeAtEdge(d);
     });
+  }
+
+  function dropMarkers(){
+    setTimeout(dropMarker,750);
+  }
+
+  function dropMarker(){
+    var markerToSelect = '.drop'+curMarker;
+    d3.select(markerToSelect).attr('class',function(){
+      return 'marker-drop dropped drop'+curMarker;
+    });
+
+    curMarker++;
+    if (curMarker <= 5){
+      dropMarkers();
+    }
+
   }
 
   function fadeMarker(d,i){
@@ -519,22 +548,14 @@ var globeModule = (function($, window) {
       start = d.geometry.coordinates;
 
       var arcDist = arc.distance({source: start, target: centerPos});
-      var start_dist = 1.57 - arcDist;
+      var start_dist = 1.157 - arcDist; //MH - why 1.57?
+
 
       if (start_dist < 0){
         return 0;
       } else {
         return 1;
       }
-
-          //end_dist = 1.57 - arc.distance({source: end, target: centerPos});
-
-      //var fade = d3.scale.linear().domain([-.1,0]).range([0,.1]);
-
-
-
-      //var dist = start_dist < end_dist ? start_dist : end_dist;
-      //return fade(dist)
   }
 
   function fadeAtEdge(d){

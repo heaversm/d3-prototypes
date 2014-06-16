@@ -81,6 +81,7 @@
   -webkit-font-smoothing: antialiased;
   text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
   opacity: 0;
+  -webkit-transition: all .5s ease-out;
   transition: all .5s ease-out;
 }
 
@@ -159,6 +160,18 @@
 .marker-info li {
   margin-bottom: 10px;
   font-size: 12px;
+}
+
+.marker-drop {
+  -webkit-transition: all 500ms cubic-bezier(0.175, 0.885, 0.320, 1.275);
+  transition: all 500ms cubic-bezier(0.175, 0.885, 0.320, 1.275);
+  -webkit-transform: translateY(-100px);
+  transform: translateY(-100px);
+}
+
+.marker-drop.dropped {
+  -webkit-transform: translateY(0px);
+  transform: translateY(0px);
 }
 
 .flyers { /* the travel lines between countries */
