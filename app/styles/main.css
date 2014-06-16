@@ -96,13 +96,13 @@
   opacity: 0;
 }
 
-.marker-group {
+/*.marker-group {
   opacity: 0;
 }
 
 .marker-group.hidden {
   display: none;
-}
+}*/
 
 .marker-group.green .marker-left {
   fill: #1A8E57;

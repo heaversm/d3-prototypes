@@ -26,8 +26,9 @@ var globeModule = (function($, window) {
     arcInner: 20, //the offset of the inner radius of the arc surrounding the globe
     arcOuter: 40, //offset of the outer radius of the arc surrounding the globe
     introPause: 1500, //time in ms to pause on each intro text,
-    arcSpeed: 750, //time in ms to animate each section of arc,
-    markerSpeed: 100 //time in ms to animate each pin falling or rising
+    arcSpeed: 2000, //time in ms to animate all arc sections (as a whole)
+    earthRotateSpeed: 10000,
+    markerSpeed: 100, //time in ms to animate each pin falling or rising,
   }
 
   var globeStates = {
@@ -138,13 +139,28 @@ var globeModule = (function($, window) {
   }
 
   function addMarker(){
-    d3.xml("img/marker-red.svg", "image/svg+xml", function(xml) {
+    d3.xml("img/marker.svg", "image/svg+xml", function(xml) {
        globeRefs.$markerEl = $(xml.documentElement).find('.marker-group')[0];
+       //var markerLoc = globeRefs.places.features[5].geometry.coordinates;
 
-       globeRefs.svg.append("circle").attr("cx", globeConfig.centerpoint[0]).attr("cy", globeConfig.centerpoint[1]).attr("r", 1).attr("class", "dot hidden");
-      $('#globe-svg').append(globeRefs.$markerEl);
-      globeRefs.dot = d3.select(".dot");
-      globeRefs.marker = d3.select('.marker-group').attr('class','marker-group yellow hidden').attr("transform", "translate(" + globeConfig.translateInX + "," + globeConfig.translateInY + ")");
+       //globeRefs.svg.node().appendChild(globeRefs.$markerEl)
+
+       globeRefs.svg.append("g").attr("class","markers")
+       .attr('transform',"translate(500,400)")
+       .selectAll("g.markers")
+       .data(globeRefs.places.features)
+       .enter()
+       .append('g')
+       .attr('class',function(d,i){
+        return 'marker marker'+i;
+       })
+       .attr("transform", function(d, i){
+        return "translate(" + d.geometry.coordinates[0] + "," + d.geometry.coordinates[1] +  ")";
+      })
+      .each(function(d, i){
+        var mark = this.appendChild(globeRefs.$markerEl.cloneNode(true));
+        d3.select(mark).select(".marker-path").attr("d", globeRefs.path);
+      });
 
     });
   }
@@ -159,7 +175,8 @@ var globeModule = (function($, window) {
 
   function loadData(){
     queue()
-    .defer(d3.json, "json/world-110m.json") //MH - load simplified json file here
+    .defer(d3.json, "json/world-110m-simplified.json")
+    //.defer(d3.json, "json/world-110m.json")
     .defer(d3.tsv, "json/world-110m-country-names.tsv")
     .defer(d3.json, "json/places.json")
     .await(dataReady);
@@ -177,6 +194,7 @@ var globeModule = (function($, window) {
     addTooltip();
     addDragHandlers();
     addArcs();
+    //rotateGlobe();
     addFlights();
   }
 
@@ -197,7 +215,9 @@ var globeModule = (function($, window) {
       globeRefs.world = globeRefs.svg.selectAll("path.land")
       .data(globeRefs.countries)
       .enter().append("path")
-      .attr("class", "land globe")
+      .attr("class", function(d,i){
+        return "land globe land"+i;
+      })
       .attr("d", globeRefs.path)
 
       .on("mouseover", function(d) {
@@ -249,6 +269,7 @@ var globeModule = (function($, window) {
         globeRefs.sky.rotate([d3.event.x * globeConfig.sens, -d3.event.y * globeConfig.sens, rotate[2]]);
         refreshMap();
         globeRefs.svg.selectAll("path.land").attr("d", globeRefs.path);
+        globeRefs.svg.selectAll('path.marker-path').attr("d",globeRefs.path);
         globeRefs.svg.selectAll(".focused").classed("focused", focused = false);
       }));
   }
@@ -258,16 +279,21 @@ var globeModule = (function($, window) {
     globeRefs.arcGroup = globeRefs.svg.append("g")
     .attr("transform", "translate(" + globeConfig.width / 2 + "," + globeConfig.height / 2 + ")")
     .attr("class","arcGroup");
-    addArc();
+
+    var arcDelay = globeConfig.earthRotateSpeed - globeConfig.arcSpeed;
+    setTimeout(addArc,arcDelay);
   }
 
   function addArc(){
     var i = globeStates.curArc;
       if (i==0){
         var startAngle = 0;
+        var lastPercent = 0;
       } else {
+        var lastPercent = globeConfig.arcPercentages[i-1];
         var startAngle = globeConfig.tau * globeConfig.arcPercentages[i-1];
       }
+
       var arc = d3.svg.arc()
       .innerRadius(globeConfig.globeRadius+globeConfig.arcInner)
       .outerRadius(globeConfig.globeRadius+globeConfig.arcOuter)
@@ -279,17 +305,59 @@ var globeModule = (function($, window) {
       .attr('class','arc arc'+i)
       .attr("d", arc);
 
-      setTimeout(function(){
+      /*setTimeout(function(){
         switchCountry(globeConfig.countryIDs[globeStates.curArc], 'auto');
-      },globeConfig.introPause);
+      },globeConfig.introPause);*/
+
+      if (globeStates.curArc<globeConfig.arcPercentages.length){
+        var easeFunc = "linear";
+      } else {
+        var easeFunc = "cubic-out";
+      }
+
+      var arcPercent = (globeConfig.arcPercentages[i] - lastPercent).toFixed(2);
+      var arcDuration = globeConfig.arcSpeed*arcPercent;
 
       arcPath.transition()
-      .delay(globeConfig.introPause)
-      .duration(globeConfig.arcSpeed)
+      //.delay(globeConfig.introPause)
+      .duration(arcDuration)
+      .ease("linear")
       .call(arcTween, globeConfig.arcPercentages[i] * globeConfig.tau, arc)
       .each('end',function(){
-        addIntroText();
+       //addIntroText();
+       if (globeStates.curArc<globeConfig.arcPercentages.length-1){
+        globeStates.curArc++;
+        addArc();
+       } else {
+          //switchCountry(globeConfig.countryIDs[globeStates.curArc], 'auto');
+       }
+
       });
+  }
+
+  function rotateGlobe(){
+
+    (function transition() {
+      d3.transition()
+        .duration(globeConfig.earthRotateSpeed)
+        .ease("quad-out")
+        .tween("rotate", function() {
+          var r = d3.interpolate(globeRefs.projection.rotate(), [360, 0]);
+          return function(t) {
+
+            globeRefs.projection.rotate(r(t));
+            globeRefs.sky.rotate(r(t));
+            if (globeRefs.path){
+              globeRefs.svg.selectAll(".point").attr("d", globeRefs.path);
+              globeRefs.svg.selectAll(".globe").attr("d", globeRefs.path)
+            }
+
+          };
+        }).each("end", function() {
+          //
+        });
+    })();
+
   }
 
   function addIntroText(){
@@ -323,6 +391,7 @@ var globeModule = (function($, window) {
     var rotate = globeRefs.projection.rotate(),
     focusedCountry = country(globeRefs.countries, countryVal),
     p = d3.geo.centroid(focusedCountry);
+
 
     var countryName = $('select').find('option[value="' + countryVal + '"]').text();
     $('.marker-country').text(countryName);
