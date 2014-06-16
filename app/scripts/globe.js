@@ -146,7 +146,7 @@ var globeModule = (function($, window) {
        //globeRefs.svg.node().appendChild(globeRefs.$markerEl)
 
        globeRefs.svg.append("g").attr("class","markers")
-       .attr('transform',"translate(500,400)")
+       //.attr('transform',"translate(500,400)")
        .selectAll("g.markers")
        .data(globeRefs.places.features)
        .enter()
@@ -155,7 +155,9 @@ var globeModule = (function($, window) {
         return 'marker marker'+i;
        })
        .attr("transform", function(d, i){
-        return "translate(" + d.geometry.coordinates[0] + "," + d.geometry.coordinates[1] +  ")";
+        var coords = d.geometry.coordinates;
+        var projCoords = globeRefs.projection(coords);
+        return 'translate(' + projCoords[0] + ', ' + projCoords[1] + ')';
       })
       .each(function(d, i){
         var mark = this.appendChild(globeRefs.$markerEl.cloneNode(true));
@@ -484,6 +486,7 @@ var globeModule = (function($, window) {
     var result = [ globeRefs.projection(source),
     globeRefs.sky(mid),
     globeRefs.projection(target) ];
+
     return result;
   }
 
@@ -502,10 +505,23 @@ var globeModule = (function($, window) {
 
   function refreshMap(){
     globeRefs.svg.selectAll(".point").attr("d", globeRefs.path);
+
+    globeRefs.svg.selectAll('.marker')
+    .attr('transform',function(d,i){
+      var coords = d.geometry.coordinates;
+      var projCoords = globeRefs.projection(coords);
+      return 'translate(' + projCoords[0] + ', ' + projCoords[1] + ')';
+    })
+    .attr("opacity", function(d) {
+      //
+    });
+
+
     globeRefs.svg.selectAll(".flyer")
     .attr("d", function(d) {
       return globeRefs.swoosh(flightArc(d));
-    }).attr("opacity", function(d) {
+    })
+    .attr("opacity", function(d) {
       return fadeAtEdge(d);
     });
   }
