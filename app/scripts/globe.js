@@ -598,7 +598,7 @@ var globeModule = (function($, window) {
       start = d.geometry.coordinates;
 
       var arcDist = arc.distance({source: start, target: centerPos});
-      var start_dist = 1.157 - arcDist; //MH - why 1.57?
+      var start_dist = 1.357 - arcDist; //MH - why 1.57?
 
 
       if (start_dist < 0){
