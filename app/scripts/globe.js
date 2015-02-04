@@ -16,10 +16,10 @@ var globeModule = (function($, window) {
     markerColors: ['yellow','red','blue','green'],
     arcPercentages: [.33,.6,.9,1], //the circular arc that goes around the globe, as a progression of percentages
     infoTextArray: [ //the text of the animated intro
-      "The quarterly budget originated at Google headquarters in Mountain View, California.",
-      "Ten days later it had traveled around the world and back again.",
-      "Googlers in 20 different locations edited, viewed or commented on the spreadsheet.",
-      "Select an office to see <br/>what happened there."
+      "Ridiculus consectetur aliquam vestibulum adipiscing orci sed torquent dis euismod vestibulum parturient placerat.",
+      "Fermentum eros arcu scelerisque placerat parturient ullamcorper dictum tincidunt.",
+      "Eros sagittis mollis dignissim vestibulum senectus parturient potenti a a volutpat duis suscipit sed vestibulum natoque.",
+      "Et ridiculus montes in fames vestibulum a iaculis."
     ],
     countryIDs: [840, 392, 484, 76], //countries which appear in the drop down
     translateOutX: null, //MH - this could be handled better...
@@ -98,7 +98,9 @@ var globeModule = (function($, window) {
     globeRefs.svg = d3.select("#globe-container").append("svg")
     .attr("width", globeConfig.width)
     .attr("height", globeConfig.height)
-    .attr('id','globe-svg');
+    .attr('id','globe-svg')
+    .attr('preserveAspectRatio','xMinYMin meet')
+    .attr('viewBox','0 0 1000 800')
   }
 
   function addProjection(){
@@ -164,6 +166,7 @@ var globeModule = (function($, window) {
         return 'translate(' + projCoords[0] + ', ' + projCoords[1] + ')';
       })
       .each(function(d, i){
+
         var mark = this.appendChild(globeRefs.$markerEl.cloneNode(true));
         d3.select(mark)
         .attr('class',function(){

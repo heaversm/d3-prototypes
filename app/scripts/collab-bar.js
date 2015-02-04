@@ -5,11 +5,11 @@ var collabBar = (function($, window) {
   var barConfig = {
     waypoints: [
       { type: "start","content" : ""},
-      { type: "waypoint","content" : "Using Google Sheets, Katherine in Finance created the quarterly budget"},
-      { type: "waypoint","content" : "She shared it with the VPs of Engineering, Operations, Product Management and Sales"},
-      { type: "waypoint","content" : "As they filled it out, the VPs inserted comments to get additional input from teammates"},
-      { type: "waypoint","content" : "They gave other people access to edit, comment, or view only."},
-      { type: "waypoint","content" : "Then Katherine shared the spreadsheet with her boss, Rhonda, for review."},
+      { type: "waypoint","content" : "Parturient per eros condimentum adipiscing sagittis a dis vestibulum."},
+      { type: "waypoint","content" : "Rutrum luctus scelerisque erat tempus egestas scelerisque mollis himenaeos primis."},
+      { type: "waypoint","content" : "Aliquet imperdiet eleifend a eros feugiat sociis suspendisse."},
+      { type: "waypoint","content" : "Sem venenatis adipiscing fames condimentum venenatis cubilia venenatis leo curae a."},
+      { type: "waypoint","content" : "A dictum id a a neque pulvinar."},
       { type: "end","content" : ""}
     ],
     numWaypoints: null,
@@ -230,10 +230,7 @@ var collabBar = (function($, window) {
   }
 
   function onDragSliderEnd(e){
-    var dir = e.gesture.direction;
-    /*if (dir == "left" && barStates.curWaypoint == 0 && barStates.barPos < barConfig.textRange){
-      setBarToStart();
-    }*/
+
   }
 
   function setBarToStart(){

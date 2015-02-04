@@ -1,3 +1,7 @@
+body {
+  margin: 0px;
+}
+
 #globe-page {
   font-family: 'Open Sans', sans-serif;
   font-weight: 300;
@@ -5,12 +9,17 @@
 }
 
 #globe-container {
-  width: 1000px;
-  height: 800px;
+  width: 695px;
+  height: 556px;
   overflow: hidden;
   margin: 0 auto;
   position: relative;
   background: #376aac;
+}
+
+#globe-svg {
+  width: 695px;
+  height: 596px;
 }
 
 .water {
